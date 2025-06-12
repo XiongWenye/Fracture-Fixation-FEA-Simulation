@@ -58,98 +58,6 @@ def element_stiffness(nodes, element, D):
     return ke
 
 
-# 组装全局刚度矩阵
-def assemble_global_stiffness(nodes, elements, material_props):
-    num_nodes = nodes.shape[0]
-    K = np.zeros((2 * num_nodes, 2 * num_nodes))
-
-    for elem_idx, elem in enumerate(elements):
-        # 获取单元中心坐标以确定材料类型
-        x_center = np.mean(nodes[elem, 0])
-        y_center = np.mean(nodes[elem, 1])
-        material_type = get_material_type(x_center, y_center)
-
-        # 获取材料属性
-        E = material_props[material_type]["E"]
-        nu = material_props[material_type]["nu"]
-        D = plane_stress_matrix(E, nu)
-
-        # 计算单元刚度矩阵
-        ke = element_stiffness(nodes, elem, D)
-
-        # 组装到全局矩阵
-        for i in range(4):
-            for j in range(4):
-                for di in range(2):
-                    for dj in range(2):
-                        row = 2 * elem[i] + di
-                        col = 2 * elem[j] + dj
-                        K[row, col] += ke[2 * i + di, 2 * j + dj]
-
-    return K
-
-
-# 计算应力
-def calculate_stress(nodes, elements, U, material_props):
-    num_elements = elements.shape[0]
-    element_stresses = np.zeros((num_elements, 3))  # sigma_xx, sigma_yy, tau_xy
-
-    for elem_idx, elem in enumerate(elements):
-        # 获取单元中心坐标以确定材料类型
-        x_center = np.mean(nodes[elem, 0])
-        y_center = np.mean(nodes[elem, 1])
-        material_type = get_material_type(x_center, y_center)
-
-        # 获取材料属性
-        E = material_props[material_type]["E"]
-        nu = material_props[material_type]["nu"]
-        D = plane_stress_matrix(E, nu)
-
-        # 单元位移
-        Ue = np.zeros(8)
-        for i in range(4):
-            Ue[2 * i] = U[2 * elem[i]]
-            Ue[2 * i + 1] = U[2 * elem[i] + 1]
-
-        # 在单元中心计算应力
-        xi, eta = 0, 0  # 单元中心
-
-        # 形函数导数
-        dN_dxi = 0.25 * np.array([-(1 - eta), (1 - eta), (1 + eta), -(1 + eta)])
-        dN_deta = 0.25 * np.array([-(1 - xi), -(1 + xi), (1 + xi), (1 - xi)])
-
-        # 雅可比矩阵
-        J = np.zeros((2, 2))
-        for i in range(4):
-            node_idx = elem[i]
-            x, y = nodes[node_idx, :]
-            J[0, 0] += dN_dxi[i] * x
-            J[0, 1] += dN_dxi[i] * y
-            J[1, 0] += dN_deta[i] * x
-            J[1, 1] += dN_deta[i] * y
-
-        detJ = np.linalg.det(J)
-        invJ = np.linalg.inv(J)
-
-        # 形函数对x,y的导数
-        dN_dx = invJ[0, 0] * dN_dxi + invJ[0, 1] * dN_deta
-        dN_dy = invJ[1, 0] * dN_dxi + invJ[1, 1] * dN_deta
-
-        # B矩阵
-        B = np.zeros((3, 8))
-        for i in range(4):
-            B[0, 2 * i] = dN_dx[i]
-            B[1, 2 * i + 1] = dN_dy[i]
-            B[2, 2 * i] = dN_dy[i]
-            B[2, 2 * i + 1] = dN_dx[i]
-
-        # 计算应力
-        stress = D @ B @ Ue
-        element_stresses[elem_idx, :] = stress
-
-    return element_stresses
-
-
 # 计算von Mises应力
 def calculate_von_mises(stress):
     sxx = stress[:, 0]
@@ -334,12 +242,6 @@ def calculate_stress(
 
         element_stresses[elem_idx, :] = D @ B @ Ue
     return element_stresses
-
-
-# 计算von Mises应力
-def calculate_von_mises(stress):
-    sxx, syy, txy = stress[:, 0], stress[:, 1], stress[:, 2]
-    return np.sqrt(sxx**2 + syy**2 - sxx * syy + 3 * txy**2)
 
 
 # --- 新增分析函数 ---
