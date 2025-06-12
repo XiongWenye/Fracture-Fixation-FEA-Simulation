@@ -2,6 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import os
 import shutil
+import pandas as pd
 
 
 # 平面应力弹性矩阵
@@ -583,6 +584,20 @@ def run_simulation(simulation_params, output_dir):
 
     # 绘制本次模拟的分析图
     plot_analysis_results(results, output_dir)
+
+    # --- 新增: 保存每组数据为CSV ---
+    df = pd.DataFrame(
+        {
+            "step": list(range(len(results["gap_strain"]))),
+            "avg_stress_fixator": results["avg_stress_fixator"],
+            "avg_stress_bone": results["avg_stress_bone"],
+            "avg_stress_callus": results["avg_stress_callus"],
+            "gap_strain": results["gap_strain"],
+        }
+    )
+    df.to_csv(os.path.join(output_dir, f"simulation_results.csv"), index=False)
+    # --- 新增结束 ---
+
     return results
 
 
@@ -617,3 +632,20 @@ if __name__ == "__main__":
     plot_parametric_comparison(all_results, base_dir)
 
     print(f"\nSimulation completed. All results saved to '{base_dir}' directory.")
+
+    # --- 新增: 汇总最终结果 ---
+    summary_rows = []
+    for label, res in all_results.items():
+        summary_rows.append(
+            {
+                "group": label,
+                "final_stress_fixator": res["avg_stress_fixator"][-1],
+                "final_stress_bone": res["avg_stress_bone"][-1],
+                "final_stress_callus": res["avg_stress_callus"][-1],
+                "final_gap_strain": res["gap_strain"][-1],
+            }
+        )
+    pd.DataFrame(summary_rows).to_csv(
+        os.path.join(base_dir, "summary_final_results.csv"), index=False
+    )
+    # --- 新增结束 ---
