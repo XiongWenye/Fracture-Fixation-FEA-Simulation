@@ -1,50 +1,7 @@
-
 import numpy as np
 import matplotlib.pyplot as plt
 import os
 import shutil
-
-def create_mesh():
-    # 计算节点坐标
-    x = np.linspace(0, fixator_length, nx + 1)
-    y = np.linspace(0, bone_width + 2 * fixator_thickness, ny + 1)
-
-    # 创建节点坐标矩阵
-    nodes = np.zeros(((nx + 1) * (ny + 1), 2))
-    for i in range(nx + 1):
-        for j in range(ny + 1):
-            nodes[i * (ny + 1) + j, 0] = x[i]
-            nodes[i * (ny + 1) + j, 1] = y[j]
-
-    # 创建单元连接矩阵
-    elements = np.zeros((nx * ny, 4), dtype=int)
-    for i in range(nx):
-        for j in range(ny):
-            n1 = i * (ny + 1) + j
-            n2 = (i + 1) * (ny + 1) + j
-            n3 = (i + 1) * (ny + 1) + j + 1
-            n4 = i * (ny + 1) + j + 1
-            elements[i * ny + j, :] = [n1, n2, n3, n4]
-
-    return nodes, elements
-
-
-# 确定材料类型
-def get_material_type(x, y):
-    # 外固定器区域
-    if y < fixator_thickness or y > bone_width + fixator_thickness:
-        return "fixator"
-
-    # 骨折区域
-    fracture_start = (
-        (fixator_length - bone_length) / 2 + bone_length / 2 - fracture_width / 2
-    )
-    fracture_end = fracture_start + fracture_width
-
-    if fracture_start <= x <= fracture_end:
-        return "callus"
-    else:
-        return "bone"
 
 
 # 平面应力弹性矩阵
@@ -131,31 +88,6 @@ def assemble_global_stiffness(nodes, elements, material_props):
     return K
 
 
-# 施加边界条件和载荷
-def apply_bc_and_loads(nodes, K, F):
-    # 固定左侧边界 (x=0)
-    left_nodes = np.where(nodes[:, 0] == 0)[0]
-    for node in left_nodes:
-        F[2 * node] = 0  # ux = 0
-        F[2 * node + 1] = 0  # uy = 0
-        K[2 * node, :] = 0
-        K[:, 2 * node] = 0
-        K[2 * node, 2 * node] = 1
-        K[2 * node + 1, :] = 0
-        K[:, 2 * node + 1] = 0
-        K[2 * node + 1, 2 * node + 1] = 1
-
-    # 在右侧施加拉力 (x=fixator_length)
-    right_nodes = np.where(nodes[:, 0] == fixator_length)[0]
-    total_nodes = len(right_nodes)
-    load_per_node = applied_load / total_nodes
-
-    for node in right_nodes:
-        F[2 * node] = load_per_node  # x方向拉力
-
-    return K, F
-
-
 # 计算应力
 def calculate_stress(nodes, elements, U, material_props):
     num_elements = elements.shape[0]
@@ -225,14 +157,13 @@ def calculate_von_mises(stress):
     return np.sqrt(sxx**2 + syy**2 - sxx * syy + 3 * txy**2)
 
 
-
-
 # 确保输出目录存在
 def setup_directories(base_dir="output_advanced"):
     if os.path.exists(base_dir):
         shutil.rmtree(base_dir)
     os.makedirs(base_dir)
     return base_dir
+
 
 # 创建网格
 def create_mesh(fixator_length, bone_width, fixator_thickness, nx, ny):
@@ -253,21 +184,26 @@ def create_mesh(fixator_length, bone_width, fixator_thickness, nx, ny):
             elements[i * ny + j, :] = [n1, n2, n3, n4]
     return nodes, elements
 
+
 # 确定材料类型
 def get_material_type(x, y, bone_width, fixator_thickness, fracture_params):
     fixator_length, bone_length, fracture_width = fracture_params
     if y < fixator_thickness or y > bone_width + fixator_thickness:
         return "fixator"
-    fracture_start = (fixator_length - bone_length) / 2 + bone_length / 2 - fracture_width / 2
+    fracture_start = (
+        (fixator_length - bone_length) / 2 + bone_length / 2 - fracture_width / 2
+    )
     fracture_end = fracture_start + fracture_width
     if fracture_start <= x <= fracture_end:
         return "callus"
     else:
         return "bone"
 
+
 # 平面应力弹性矩阵
 def plane_stress_matrix(E, nu):
     return E / (1 - nu**2) * np.array([[1, nu, 0], [nu, 1, 0], [0, 0, (1 - nu) / 2]])
+
 
 # 计算单元刚度矩阵
 def element_stiffness(nodes, element, D):
@@ -293,7 +229,10 @@ def element_stiffness(nodes, element, D):
         ke += B.T @ D @ B * detJ * weights[gp]
     return ke
 
-def assemble_global_stiffness(nodes, elements, material_props, bone_width, fixator_thickness, fracture_params):
+
+def assemble_global_stiffness(
+    nodes, elements, material_props, bone_width, fixator_thickness, fracture_params
+):
     """
     组装全局刚度矩阵 (已修正版本)
     """
@@ -304,7 +243,9 @@ def assemble_global_stiffness(nodes, elements, material_props, bone_width, fixat
         # 获取单元中心坐标以确定材料类型
         x_center = np.mean(nodes[elem, 0])
         y_center = np.mean(nodes[elem, 1])
-        material_type = get_material_type(x_center, y_center, bone_width, fixator_thickness, fracture_params)
+        material_type = get_material_type(
+            x_center, y_center, bone_width, fixator_thickness, fracture_params
+        )
 
         # 获取材料属性
         E = material_props[material_type]["E"]
@@ -354,19 +295,28 @@ def apply_bc_and_loads(nodes, K, F, applied_load, fixator_length):
         load_per_node = applied_load / len(right_nodes)
         for node in right_nodes:
             F[2 * node] = load_per_node  # x方向拉力
-    
+
     return K, F
 
-def calculate_stress(nodes, elements, U, material_props, bone_width, fixator_thickness, fracture_params):
+
+def calculate_stress(
+    nodes, elements, U, material_props, bone_width, fixator_thickness, fracture_params
+):
     element_stresses = np.zeros((len(elements), 3))
     for elem_idx, elem in enumerate(elements):
         x_center = np.mean(nodes[elem, 0])
         y_center = np.mean(nodes[elem, 1])
-        material_type = get_material_type(x_center, y_center, bone_width, fixator_thickness, fracture_params)
+        material_type = get_material_type(
+            x_center, y_center, bone_width, fixator_thickness, fracture_params
+        )
         E, nu = material_props[material_type]["E"], material_props[material_type]["nu"]
         D = plane_stress_matrix(E, nu)
-        Ue = U[np.array([2 * n for n in elem] + [2 * n + 1 for n in elem]).reshape(2, 4).T.flatten()]
-        
+        Ue = U[
+            np.array([2 * n for n in elem] + [2 * n + 1 for n in elem])
+            .reshape(2, 4)
+            .T.flatten()
+        ]
+
         xi, eta = 0, 0
         dN_dxi = 0.25 * np.array([-(1 - eta), (1 - eta), (1 + eta), -(1 + eta)])
         dN_deta = 0.25 * np.array([-(1 - xi), -(1 + xi), (1 + xi), (1 - xi)])
@@ -383,62 +333,84 @@ def calculate_stress(nodes, elements, U, material_props, bone_width, fixator_thi
 
         element_stresses[elem_idx, :] = D @ B @ Ue
     return element_stresses
+
+
 # 计算von Mises应力
 def calculate_von_mises(stress):
     sxx, syy, txy = stress[:, 0], stress[:, 1], stress[:, 2]
     return np.sqrt(sxx**2 + syy**2 - sxx * syy + 3 * txy**2)
 
+
 # --- 新增分析函数 ---
 
-def calculate_average_stresses(nodes, elements, stresses, bone_width, fixator_thickness, fracture_params):
+
+def calculate_average_stresses(
+    nodes, elements, stresses, bone_width, fixator_thickness, fracture_params
+):
     """按材料类型计算平均Von Mises应力"""
     vm_stresses = calculate_von_mises(stresses)
-    
+
     avg_stresses = {"bone": 0, "callus": 0, "fixator": 0}
     counts = {"bone": 0, "callus": 0, "fixator": 0}
 
     for i, elem in enumerate(elements):
         x_center = np.mean(nodes[elem, 0])
         y_center = np.mean(nodes[elem, 1])
-        material_type = get_material_type(x_center, y_center, bone_width, fixator_thickness, fracture_params)
-        
+        material_type = get_material_type(
+            x_center, y_center, bone_width, fixator_thickness, fracture_params
+        )
+
         avg_stresses[material_type] += vm_stresses[i]
         counts[material_type] += 1
-        
+
     for key in avg_stresses:
         if counts[key] > 0:
             avg_stresses[key] /= counts[key]
-            
+
     return avg_stresses
+
 
 # ===================================================================
 #  请用这个修正版的函数替换你的旧函数
 # ===================================================================
 
-def calculate_fracture_gap_strain(nodes, U, fixator_length, bone_length, fracture_width):
+
+def calculate_fracture_gap_strain(
+    nodes, U, fixator_length, bone_length, fracture_width
+):
     """计算骨折间隙的平均轴向应变 (已修正版本)"""
-    fracture_start = (fixator_length - bone_length) / 2 + bone_length / 2 - fracture_width / 2
+    fracture_start = (
+        (fixator_length - bone_length) / 2 + bone_length / 2 - fracture_width / 2
+    )
     fracture_end = fracture_start + fracture_width
-    
+
     # 获取网格中所有不重复的x坐标
     unique_x_coords = np.unique(nodes[:, 0])
-    
+
     # 找到离 fracture_start 最近且小于它的那一列节点的x坐标
     left_boundary_x = unique_x_coords[unique_x_coords < fracture_start].max()
-    
+
     # 找到离 fracture_end 最近且大于它的那一列节点的x坐标
     right_boundary_x = unique_x_coords[unique_x_coords > fracture_end].min()
-    
+
     # 根据找到的x坐标来选择节点
     left_gap_nodes = np.where(np.isclose(nodes[:, 0], left_boundary_x))[0]
     right_gap_nodes = np.where(np.isclose(nodes[:, 0], right_boundary_x))[0]
-    
+
     # 过滤掉固定器部分的节点，只计算骨骼和骨痂区域的应变
     bone_width = 0.02
     fixator_thickness = 0.005
-    
-    left_gap_nodes_bone = [n for n in left_gap_nodes if fixator_thickness <= nodes[n,1] <= bone_width + fixator_thickness]
-    right_gap_nodes_bone = [n for n in right_gap_nodes if fixator_thickness <= nodes[n,1] <= bone_width + fixator_thickness]
+
+    left_gap_nodes_bone = [
+        n
+        for n in left_gap_nodes
+        if fixator_thickness <= nodes[n, 1] <= bone_width + fixator_thickness
+    ]
+    right_gap_nodes_bone = [
+        n
+        for n in right_gap_nodes
+        if fixator_thickness <= nodes[n, 1] <= bone_width + fixator_thickness
+    ]
 
     if not left_gap_nodes_bone or not right_gap_nodes_bone:
         return 0.0
@@ -446,30 +418,32 @@ def calculate_fracture_gap_strain(nodes, U, fixator_length, bone_length, fractur
     # 提取这些节点的x方向位移
     ux_left = U[2 * np.array(left_gap_nodes_bone)]
     ux_right = U[2 * np.array(right_gap_nodes_bone)]
-    
+
     # 计算实际的间隙宽度
     actual_gap_width = right_boundary_x - left_boundary_x
-    
+
     # 计算平均位移差并除以实际间隙宽度得到应变
     avg_displacement_diff = np.mean(ux_right) - np.mean(ux_left)
     strain = avg_displacement_diff / actual_gap_width
-    
+
     return strain
+
 
 # --- 新增绘图函数 ---
 
+
 def plot_analysis_results(results, output_dir):
     """绘制应力遮挡和间隙应变的演化图"""
-    steps = range(len(results['gap_strain']))
-    
+    steps = range(len(results["gap_strain"]))
+
     # 绘制应力遮挡图
     fig, ax = plt.subplots(figsize=(10, 6))
-    ax.plot(steps, results['avg_stress_fixator'], 'b-o', label='Fixator ')
-    ax.plot(steps, results['avg_stress_bone'], 'k-^', label='Bone ')
-    ax.plot(steps, results['avg_stress_callus'], 'g-s', label='Callus ')
-    ax.set_xlabel('Simulation Step ')
-    ax.set_ylabel('Average Von Mises Stress (Pa) ')
-    ax.set_title('Stress Shielding Effect ')
+    ax.plot(steps, results["avg_stress_fixator"], "b-o", label="Fixator ")
+    ax.plot(steps, results["avg_stress_bone"], "k-^", label="Bone ")
+    ax.plot(steps, results["avg_stress_callus"], "g-s", label="Callus ")
+    ax.set_xlabel("Simulation Step ")
+    ax.set_ylabel("Average Von Mises Stress (Pa) ")
+    ax.set_title("Stress Shielding Effect ")
     ax.legend()
     ax.grid(True)
     plt.savefig(os.path.join(output_dir, "stress_shielding.png"))
@@ -477,61 +451,59 @@ def plot_analysis_results(results, output_dir):
 
     # 绘制骨折间隙应变图
     fig, ax = plt.subplots(figsize=(10, 6))
-    ax.plot(steps, np.array(results['gap_strain']) * 100, 'r-o') # 转换为百分比
-    ax.set_xlabel('Simulation Step ')
-    ax.set_ylabel('Fracture Gap Strain (%) ')
-    ax.set_title('Fracture Gap Strain Evolution ')
+    ax.plot(steps, np.array(results["gap_strain"]) * 100, "r-o")  # 转换为百分比
+    ax.set_xlabel("Simulation Step ")
+    ax.set_ylabel("Fracture Gap Strain (%) ")
+    ax.set_title("Fracture Gap Strain Evolution ")
     ax.grid(True)
     plt.savefig(os.path.join(output_dir, "gap_strain.png"))
     plt.close()
 
+
 def plot_parametric_comparison(all_results, output_dir="output_advanced"):
     """绘制参数化研究的对比图"""
     fig, axes = plt.subplots(1, 2, figsize=(18, 7))
-    
+
     colors = plt.cm.viridis(np.linspace(0, 1, len(all_results)))
-    
+
     # 对比最终应力分布
     ax = axes[0]
     for i, (label, results) in enumerate(all_results.items()):
         final_stresses = [
-            results['avg_stress_fixator'][-1],
-            results['avg_stress_bone'][-1],
-            results['avg_stress_callus'][-1]
+            results["avg_stress_fixator"][-1],
+            results["avg_stress_bone"][-1],
+            results["avg_stress_callus"][-1],
         ]
         ax.bar(
-            np.arange(3) + i * 0.2, 
-            final_stresses, 
-            width=0.2, 
+            np.arange(3) + i * 0.2,
+            final_stresses,
+            width=0.2,
             label=label,
-            color=colors[i]
+            color=colors[i],
         )
     ax.set_xticks(np.arange(3) + 0.2)
-    ax.set_xticklabels(['Fixator', 'Bone', 'Callus'])
-    ax.set_ylabel('Final Average Stress (Pa)')
-    ax.set_title('Final Stress Distribution vs. Fixator Stiffness')
+    ax.set_xticklabels(["Fixator", "Bone", "Callus"])
+    ax.set_ylabel("Final Average Stress (Pa)")
+    ax.set_title("Final Stress Distribution vs. Fixator Stiffness")
     ax.legend()
 
     # 对比间隙应变演化
     ax = axes[1]
     for i, (label, results) in enumerate(all_results.items()):
-        ax.plot(
-            results['gap_strain'],
-            '-o',
-            label=label,
-            color=colors[i]
-        )
-    ax.set_xlabel('Simulation Step')
-    ax.set_ylabel('Fracture Gap Strain')
-    ax.set_title('Gap Strain Evolution vs. Fixator Stiffness')
+        ax.plot(results["gap_strain"], "-o", label=label, color=colors[i])
+    ax.set_xlabel("Simulation Step")
+    ax.set_ylabel("Fracture Gap Strain")
+    ax.set_title("Gap Strain Evolution vs. Fixator Stiffness")
     ax.legend()
     ax.grid(True)
-    
+
     plt.tight_layout()
     plt.savefig(os.path.join(output_dir, "parametric_comparison.png"))
     plt.close()
 
+
 # --- 主模拟函数（重构后）---
+
 
 def run_simulation(simulation_params, output_dir):
     """运行单次模拟并返回分析结果"""
@@ -559,8 +531,10 @@ def run_simulation(simulation_params, output_dir):
 
     # 存储每个时间步的分析结果
     results = {
-        'avg_stress_fixator': [], 'avg_stress_bone': [], 'avg_stress_callus': [],
-        'gap_strain': []
+        "avg_stress_fixator": [],
+        "avg_stress_bone": [],
+        "avg_stress_callus": [],
+        "gap_strain": [],
     }
 
     # 时间步循环
@@ -568,27 +542,49 @@ def run_simulation(simulation_params, output_dir):
         print(f"  - Running step {step + 1}/{num_steps}")
         # 更新骨痂弹性模量
         t = step / (num_steps - 1)
-        material_props["callus"]["E"] = E_callus_initial + t * (E_callus_final - E_callus_initial)
+        material_props["callus"]["E"] = E_callus_initial + t * (
+            E_callus_final - E_callus_initial
+        )
 
         # 有限元求解
-        K = assemble_global_stiffness(nodes, elements, material_props, bone_width, fixator_thickness, fracture_params)
+        K = assemble_global_stiffness(
+            nodes,
+            elements,
+            material_props,
+            bone_width,
+            fixator_thickness,
+            fracture_params,
+        )
         F = np.zeros(2 * nodes.shape[0])
         K, F = apply_bc_and_loads(nodes, K, F, applied_load, fixator_length)
         U = np.linalg.solve(K, F)
-        stresses = calculate_stress(nodes, elements, U, material_props, bone_width, fixator_thickness, fracture_params)
+        stresses = calculate_stress(
+            nodes,
+            elements,
+            U,
+            material_props,
+            bone_width,
+            fixator_thickness,
+            fracture_params,
+        )
 
         # 计算并存储分析指标
-        avg_stresses = calculate_average_stresses(nodes, elements, stresses, bone_width, fixator_thickness, fracture_params)
-        gap_strain = calculate_fracture_gap_strain(nodes, U, fixator_length, bone_length, fracture_width)
-        
-        results['avg_stress_fixator'].append(avg_stresses['fixator'])
-        results['avg_stress_bone'].append(avg_stresses['bone'])
-        results['avg_stress_callus'].append(avg_stresses['callus'])
-        results['gap_strain'].append(gap_strain)
+        avg_stresses = calculate_average_stresses(
+            nodes, elements, stresses, bone_width, fixator_thickness, fracture_params
+        )
+        gap_strain = calculate_fracture_gap_strain(
+            nodes, U, fixator_length, bone_length, fracture_width
+        )
+
+        results["avg_stress_fixator"].append(avg_stresses["fixator"])
+        results["avg_stress_bone"].append(avg_stresses["bone"])
+        results["avg_stress_callus"].append(avg_stresses["callus"])
+        results["gap_strain"].append(gap_strain)
 
     # 绘制本次模拟的分析图
     plot_analysis_results(results, output_dir)
     return results
+
 
 # --- 主程序入口 ---
 
@@ -602,16 +598,16 @@ if __name__ == "__main__":
         "Standard Fixator ": (70.0e9, "Standard"),
         "Rigid Fixator ": (140.0e9, "Rigid"),
     }
-    
+
     all_results = {}
 
     for name, params in parametric_studies.items():
         print(f"--- Running Simulation for: {name} ---")
-        
+
         # 为每次模拟创建单独的输出目录
         sim_output_dir = os.path.join(base_dir, params[1])
         os.makedirs(sim_output_dir)
-        
+
         # 运行模拟并保存结果
         results = run_simulation(params, sim_output_dir)
         all_results[name] = results
@@ -619,5 +615,5 @@ if __name__ == "__main__":
     # 绘制参数化研究的最终对比图
     print("\n--- Generating Parametric Comparison Plot ---")
     plot_parametric_comparison(all_results, base_dir)
-    
+
     print(f"\nSimulation completed. All results saved to '{base_dir}' directory.")
