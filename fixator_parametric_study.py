@@ -5,59 +5,6 @@ import shutil
 import pandas as pd
 
 
-# 平面应力弹性矩阵
-def plane_stress_matrix(E, nu):
-    return E / (1 - nu**2) * np.array([[1, nu, 0], [nu, 1, 0], [0, 0, (1 - nu) / 2]])
-
-
-# 计算单元刚度矩阵
-def element_stiffness(nodes, element, D):
-    # 4节点四边形等参元
-    xi = np.array([-1 / np.sqrt(3), 1 / np.sqrt(3), 1 / np.sqrt(3), -1 / np.sqrt(3)])
-    eta = np.array([-1 / np.sqrt(3), -1 / np.sqrt(3), 1 / np.sqrt(3), 1 / np.sqrt(3)])
-    weights = np.array([1, 1, 1, 1])
-
-    ke = np.zeros((8, 8))
-
-    for gp in range(4):
-        # 形函数导数
-        dN_dxi = 0.25 * np.array(
-            [-(1 - eta[gp]), (1 - eta[gp]), (1 + eta[gp]), -(1 + eta[gp])]
-        )
-        dN_deta = 0.25 * np.array(
-            [-(1 - xi[gp]), -(1 + xi[gp]), (1 + xi[gp]), (1 - xi[gp])]
-        )
-
-        # 雅可比矩阵
-        J = np.zeros((2, 2))
-        for i in range(4):
-            node_idx = element[i]
-            x, y = nodes[node_idx, :]
-            J[0, 0] += dN_dxi[i] * x
-            J[0, 1] += dN_dxi[i] * y
-            J[1, 0] += dN_deta[i] * x
-            J[1, 1] += dN_deta[i] * y
-
-        detJ = np.linalg.det(J)
-        invJ = np.linalg.inv(J)
-
-        # 形函数对x,y的导数
-        dN_dx = invJ[0, 0] * dN_dxi + invJ[0, 1] * dN_deta
-        dN_dy = invJ[1, 0] * dN_dxi + invJ[1, 1] * dN_deta
-
-        # B矩阵
-        B = np.zeros((3, 8))
-        for i in range(4):
-            B[0, 2 * i] = dN_dx[i]
-            B[1, 2 * i + 1] = dN_dy[i]
-            B[2, 2 * i] = dN_dy[i]
-            B[2, 2 * i + 1] = dN_dx[i]
-
-        ke += B.T @ D @ B * detJ * weights[gp]
-
-    return ke
-
-
 # 计算von Mises应力
 def calculate_von_mises(stress):
     sxx = stress[:, 0]
