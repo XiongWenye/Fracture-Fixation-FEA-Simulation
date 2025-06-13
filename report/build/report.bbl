@@ -1,0 +1,14 @@
+\begin{thebibliography}{1}
+\providecommand{\natexlab}[1]{#1}
+\providecommand{\url}[1]{\texttt{#1}}
+\expandafter\ifx\csname urlstyle\endcsname\relax
+  \providecommand{\doi}[1]{doi: #1}\else
+  \providecommand{\doi}{doi: \begingroup \urlstyle{rm}\Url}\fi
+
+\bibitem[Kour and Saabne(2014)]{kour2014real}
+George Kour and Raid Saabne.
+\newblock Real-time segmentation of on-line handwritten arabic script.
+\newblock In \emph{Frontiers in Handwriting Recognition (ICFHR), 2014 14th
+  International Conference on}, pages 417--422. IEEE, 2014.
+
+\end{thebibliography}

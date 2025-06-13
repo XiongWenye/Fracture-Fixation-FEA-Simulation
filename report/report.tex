@@ -58,8 +58,8 @@
 %\date{}
 
 % Uncomment to override  the `A preprint' in the header
-%\renewcommand{\headeright}{Technical Report}
-%\renewcommand{\undertitle}{Technical Report}
+\renewcommand{\headeright}{Technical Report}
+\renewcommand{\undertitle}{Technical Report}
 \renewcommand{\shorttitle}{\textit{arXiv} Template}
 
 %%% Add PDF metadata to help others organize their library
@@ -82,7 +82,7 @@ pdfkeywords={First keyword, Second keyword, More},
 
 % keywords can be removed
 % TODO: keywords
-\keywords{First keyword \and Second keyword \and More}
+\keywords{FEA \and Fracture Fixation}
 
 \section{Introduction}
 
@@ -94,52 +94,52 @@ In fracture repair processes, as splints or internal fixators gradually reduce l
 \begin{itemize}
   \item \textbf{Type}: Non-homogeneous elastic body under load with time-varying material properties (elastic modulus)
   \item \textbf{Model}: 2D "bone+splint" system with either:
-    \begin{itemize}
-      \item Gradually recovering fracture surface stiffness, or
-      \item Progressively decreasing splint stiffness
-    \end{itemize}
+        \begin{itemize}
+          \item Gradually recovering fracture surface stiffness, or
+          \item Progressively decreasing splint stiffness
+        \end{itemize}
   \item \textbf{Features}: Simulation of stress transfer from splint to bone tissue
 \end{itemize}
 \subsection{Mathematical Model}
 \subsubsection{Mechanical Framework}
 Linear elasticity theory with time-dependent parameters:
 \[
-\bm{\sigma}^{(t)} = \mathbf{D}^{(t)}\bm{\varepsilon}
+  \bm{\sigma}^{(t)} = \mathbf{D}^{(t)}\bm{\varepsilon}
 \]
 where $\mathbf{D}^{(t)}$ evolves with healing progression.
 \subsubsection{Material Evolution}
 \begin{align*}
-\text{Bone tissue} &: E_{bone} \approx 17 \text{ GPa (constant)} \\
-\text{Splint} &: E_{splint}^{(t)} \text{ (may decrease)} \\
-\text{Callus} &: E_{callus}^{(t)} \text{ (increases with healing)}
+  \text{Bone tissue} & : E_{bone} \approx 17 \text{ GPa (constant)}        \\
+  \text{Splint}      & : E_{splint}^{(t)} \text{ (may decrease)}           \\
+  \text{Callus}      & : E_{callus}^{(t)} \text{ (increases with healing)}
 \end{align*}
 \subsubsection{Fracture Interface}
 Bonding coefficient $\beta(t)$ represents healing progress:
 \[
-\beta(t) \in [0,1] \quad \text{(0 = unhealed, 1 = fully bonded)}
+  \beta(t) \in [0,1] \quad \text{(0 = unhealed, 1 = fully bonded)}
 \]
 \subsection{Finite Element Implementation}
 \subsubsection{CST Element Formulation}
 Displacement field for triangular elements:
 \[
-\mathbf{u} = \begin{bmatrix} u(x,y) \\ v(x,y) \end{bmatrix} = \mathbf{N}\mathbf{d}^e
+  \mathbf{u} = \begin{bmatrix} u(x,y) \\ v(x,y) \end{bmatrix} = \mathbf{N}\mathbf{d}^e
 \]
 Strain-displacement relationship:
 \[
-\bm{\varepsilon} = \mathbf{B}\mathbf{d}^e
+  \bm{\varepsilon} = \mathbf{B}\mathbf{d}^e
 \]
 where $\mathbf{B}$ is the strain-displacement matrix.
 \subsubsection{Time-Stepping Algorithm}
 \begin{enumerate}
   \item Initialize material properties $E_{callus}(t_0)$, $E_{splint}(t_0)$
   \item Compute element stiffness matrices:
-  \[
-  \mathbf{K}^{e(t)} = tA\mathbf{B}^T\mathbf{D}^{(t)}\mathbf{B}
-  \]
+        \[
+          \mathbf{K}^{e(t)} = tA\mathbf{B}^T\mathbf{D}^{(t)}\mathbf{B}
+        \]
   \item Assemble global system:
-  \[
-  \mathbf{K}^{(t)}\mathbf{d}^{(t)} = \mathbf{F}^{(t)}
-  \]
+        \[
+          \mathbf{K}^{(t)}\mathbf{d}^{(t)} = \mathbf{F}^{(t)}
+        \]
   \item Update material properties for next time step
 \end{enumerate}
 \subsection{Expected Outcomes}
@@ -155,6 +155,9 @@ where $\mathbf{B}$ is the strain-displacement matrix.
 \subsection{Discussion}
 
 \section{Conclusion}
+
+\citep{kour2014real} % test_citations
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
