@@ -367,10 +367,10 @@ def plot_model(nodes, elements, material_props, step, U=None, stresses=None):
         cbar.set_label("Von Mises Stress (Pa)")
 
         # 绘制网格
-        for elem in elements:
-            x = nodes[elem, 0]
-            y = nodes[elem, 1]
-            ax.plot(x[[0, 1, 2, 3, 0]], y[[0, 1, 2, 3, 0]], "k-", linewidth=0.2)
+        # for elem in elements:
+        #     x = nodes[elem, 0]
+        #     y = nodes[elem, 1]
+        #     ax.plot(x[[0, 1, 2, 3, 0]], y[[0, 1, 2, 3, 0]], "k-", linewidth=0.2)
 
         # 设置标题和标签
         ax.set_title(f"Stress Distribution - Step {step}")
