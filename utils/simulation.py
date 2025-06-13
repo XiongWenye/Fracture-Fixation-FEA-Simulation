@@ -2,7 +2,7 @@ import numpy as np
 import os
 import pandas as pd
 
-from utils.fem_core import create_mesh, assemble_global_stiffness
+from utils.fea_core import create_mesh, assemble_global_stiffness
 from utils.materials import get_material_type
 from utils.analysis import (
     calculate_stress,
@@ -117,7 +117,7 @@ def run_simulation(simulation_params, output_dir):
     # 绘制本次模拟的分析图
     plot_analysis_results(results, output_dir)
 
-    # --- 新增: 保存每组数据为CSV ---
+    # 保存每组数据为CSV
     df = pd.DataFrame(
         {
             "step": list(range(len(results["gap_strain"]))),
@@ -128,6 +128,4 @@ def run_simulation(simulation_params, output_dir):
         }
     )
     df.to_csv(os.path.join(output_dir, f"simulation_results.csv"), index=False)
-    # --- 新增结束 ---
-
     return results

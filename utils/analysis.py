@@ -1,7 +1,7 @@
 import numpy as np
 
 from utils.materials import get_material_type
-from utils.fem_core import plane_stress_matrix
+from utils.fea_core import plane_stress_matrix
 
 
 def calculate_stress(
