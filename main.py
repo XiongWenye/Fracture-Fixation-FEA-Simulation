@@ -27,6 +27,8 @@ if __name__ == "__main__":
         print(f"--- Running Simulation for: {name} ---")
         sim_output_dir = os.path.join(base_dir, params[1])
         os.makedirs(sim_output_dir)
+        os.makedirs(os.path.join(sim_output_dir, "stress_images"))
+
         results = run_simulation(params, sim_output_dir)
         all_results[name] = results
 
