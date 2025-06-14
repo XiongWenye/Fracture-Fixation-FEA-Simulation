@@ -1,14 +1,28 @@
-\begin{thebibliography}{1}
+\begin{thebibliography}{2}
 \providecommand{\natexlab}[1]{#1}
 \providecommand{\url}[1]{\texttt{#1}}
 \expandafter\ifx\csname urlstyle\endcsname\relax
   \providecommand{\doi}[1]{doi: #1}\else
   \providecommand{\doi}{doi: \begingroup \urlstyle{rm}\Url}\fi
 
-\bibitem[Kour and Saabne(2014)]{kour2014real}
-George Kour and Raid Saabne.
-\newblock Real-time segmentation of on-line handwritten arabic script.
-\newblock In \emph{Frontiers in Handwriting Recognition (ICFHR), 2014 14th
-  International Conference on}, pages 417--422. IEEE, 2014.
+\bibitem[Lewis et~al.(2021)Lewis, Mischler, Wee, Reid, and
+  Varga]{lewis2021finite}
+Gregory~S. Lewis, Dominic Mischler, Hwabok Wee, J.~Spence Reid, and Peter
+  Varga.
+\newblock Finite element analysis of fracture fixation.
+\newblock \emph{Current Osteoporosis Reports}, 19\penalty0 (4):\penalty0
+  403--416, 2021.
+\newblock \doi{10.1007/s11914-021-00690-y}.
+\newblock URL \url{https://doi.org/10.1007/s11914-021-00690-y}.
+
+\bibitem[Morgan et~al.(2024)Morgan, Low, Ramasamy, and
+  Masouros]{morgan2024novel}
+George~T. Morgan, Lucas Low, Arul Ramasamy, and Spyros~D. Masouros.
+\newblock A novel strain-based bone-fracture healing algorithm is able to
+  predict a range of healing outcomes.
+\newblock \emph{Frontiers in Bioengineering and Biotechnology}, 12:\penalty0
+  1477405, 2024.
+\newblock \doi{10.3389/fbioe.2024.1477405}.
+\newblock URL \url{https://doi.org/10.3389/fbioe.2024.1477405}.
 
 \end{thebibliography}

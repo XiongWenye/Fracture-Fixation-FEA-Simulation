@@ -58,9 +58,9 @@
 %\date{}
 
 % Uncomment to override  the `A preprint' in the header
-%\renewcommand{\headeright}{Technical Report}
-%\renewcommand{\undertitle}{Technical Report}
-\renewcommand{\shorttitle}{\textit{arXiv} Template}
+\renewcommand{\headeright}{SI114H Project Report}
+\renewcommand{\undertitle}{SI114H Project Report}
+\renewcommand{\shorttitle}{Fracture Fixation FEA Simulation}
 
 %%% Add PDF metadata to help others organize their library
 %%% Once the PDF is generated, you can check the metadata with
@@ -81,75 +81,158 @@ pdfkeywords={First keyword, Second keyword, More},
 
 
 % keywords can be removed
-% TODO: keywords
-\keywords{First keyword \and Second keyword \and 小变形理论}
+\keywords{Finite element analysis \and Fracture fixation \and Small deformation theory \and Stress transfer \and Bone healing}
 
 \section{Introduction}
 
-In fracture repair processes, as splints or internal fixators gradually reduce load-bearing, the fracture region begins to regain stress-bearing capacity. This project simulates how decreasing splint stiffness (or increasing fracture surface bonding strength) in a "bone+splint" system affects stress redistribution during healing, helping to understand the biomechanical phenomenon of "stress transfer".
+In fracture repair processes, as splints or internal fixators gradually reduce load-bearing, the fracture region begins to regain stress-bearing capacity. This project simulates how decreasing splint stiffness (or increasing fracture surface bonding strength) in a "bone+splint" system affects stress redistribution during healing, helping to understand the biomechanical phenomenon of "stress transfer". The study focuses on the influence of varying fixator stiffness on stress distribution and fracture gap strain during the healing process, employing Finite Element Analysis (FEA).
 
-\section{Literature review/ overview of existing work (with unified notation)}
+\section{Overview of existing work}
 
-\section{Integration of the content of this course with the questions studied}
+Finite Element Analysis (FEA) is a powerful computational tool extensively used in biomechanics to simulate and analyze the behavior of biological structures under various conditions. In orthopedics, FEA plays a crucial role in understanding fracture mechanics, designing and optimizing implants, and predicting the outcomes of fracture fixation strategies \citep{lewis2021finite}. Traditional methods for evaluating fracture treatments, such as in vitro experiments and clinical trials, often face limitations in terms of cost, time, and the ability to perform detailed parametric studies. FEA offers a complementary approach, allowing for the detailed examination of stress and strain distributions within bone-implant constructs.
+
+A key aspect of fracture healing is the concept of "stress shielding," where a rigid fixation device bears a significant portion of the load, reducing the mechanical stimulus to the healing bone. While some stress shielding is necessary for initial stability, excessive shielding can delay or impair bone healing by inhibiting the formation of callus and its subsequent remodeling. Conversely, overly flexible fixation can lead to excessive motion at the fracture site, potentially resulting in non-union. Therefore, understanding the optimal mechanical environment for fracture healing is critical.
+
+Recent research has focused on developing computational models that can simulate the mechanobiological processes of fracture healing. These models often incorporate time-dependent material properties for the healing callus and consider the influence of mechanical stimuli, such as strain or stress, on tissue differentiation \citep{morgan2024novel}. Parametric studies using FEA can investigate how factors like fixator stiffness, fracture gap size, and loading conditions affect the stress transfer mechanism from the fixator to the bone as healing progresses. This project aligns with this direction by specifically investigating how different fixator stiffnesses influence stress distribution and fracture gap strain over a simulated healing period.
+
+\section{Integration of the content of the course}
 
 We use FEA to model stress redistribution during fracture healing.
 
 \subsection{Problem Definition}
+
 \begin{itemize}
-  \item \textbf{Type}: Non-homogeneous elastic body under load with time-varying material properties (elastic modulus)
-  \item \textbf{Model}: 2D "bone+splint" system with either:
-    \begin{itemize}
-      \item Gradually recovering fracture surface stiffness, or
-      \item Progressively decreasing splint stiffness
-    \end{itemize}
-  \item \textbf{Features}: Simulation of stress transfer from splint to bone tissue
+  \item \textbf{Type}: Non-homogeneous elastic body under load with time-varying material properties (elastic modulus of callus)
+  \item \textbf{Model}: 2D "bone+fixator" system with a healing fracture gap (callus).
+  \item \textbf{Features}: Simulation of stress transfer from fixator to bone tissue as callus stiffness increases over time, under different fixator stiffness conditions.
 \end{itemize}
+
 \subsection{Mathematical Model}
+
 \subsubsection{Mechanical Framework}
-Linear elasticity theory with time-dependent parameters:
+
+Linear elasticity theory with time-dependent parameters for the callus:
 \[
-\bm{\sigma}^{(t)} = \mathbf{D}^{(t)}\bm{\varepsilon}
+  \bm{\sigma}^{(t)} = \mathbf{D}^{(t)}\bm{\varepsilon}
 \]
-where $\mathbf{D}^{(t)}$ evolves with healing progression.
+where $\mathbf{D}^{(t)}$ for the callus evolves with healing progression. Bone and fixator material properties are considered constant for each simulation scenario, but fixator properties vary between scenarios.
 \subsubsection{Material Evolution}
 \begin{align*}
-\text{Bone tissue} &: E_{bone} \approx 17 \text{ GPa (constant)} \\
-\text{Splint} &: E_{splint}^{(t)} \text{ (may decrease)} \\
-\text{Callus} &: E_{callus}^{(t)} \text{ (increases with healing)}
+  \text{Bone tissue} & : E_{bone} = 18 \text{ GPa (constant)}                                          \\
+  \text{Fixator}     & : E_{fixator} \text{ (varied parametrically: 35 GPa, 70 GPa, 140 GPa)}          \\
+  \text{Callus}      & : E_{callus}^{(t)} \text{ (increases from 0.1 GPa to 18 GPa over healing time)}
 \end{align*}
+Poisson's ratio $\nu = 0.3$ for all materials.
+
 \subsubsection{Fracture Interface}
-Bonding coefficient $\beta(t)$ represents healing progress:
-\[
-\beta(t) \in [0,1] \quad \text{(0 = unhealed, 1 = fully bonded)}
-\]
+The fracture interface is modeled as a callus region whose material properties (specifically Young's modulus) evolve over time, representing the healing process.
+
 \subsection{Finite Element Implementation}
-\subsubsection{CST Element Formulation}
-Displacement field for triangular elements:
+
+\subsubsection{Element Formulation}
+Bilinear quadrilateral elements (Q4) are used for spatial discretization. The displacement field within an element is interpolated from nodal displacements.
+The strain-displacement relationship is given by:
 \[
-\mathbf{u} = \begin{bmatrix} u(x,y) \\ v(x,y) \end{bmatrix} = \mathbf{N}\mathbf{d}^e
+  \bm{\varepsilon} = \mathbf{B}\mathbf{d}^e
 \]
-Strain-displacement relationship:
-\[
-\bm{\varepsilon} = \mathbf{B}\mathbf{d}^e
-\]
-where $\mathbf{B}$ is the strain-displacement matrix.
-\subsubsection{Time-Stepping Algorithm}
+where $\mathbf{B}$ is the strain-displacement matrix derived from the element shape functions.
+
+\subsubsection{Time-Stepping Algorithm for Healing Simulation}
+The simulation progresses through discrete time steps, representing stages of healing:
 \begin{enumerate}
-  \item Initialize material properties $E_{callus}(t_0)$, $E_{splint}(t_0)$
-  \item Compute element stiffness matrices:
-  \[
-  \mathbf{K}^{e(t)} = tA\mathbf{B}^T\mathbf{D}^{(t)}\mathbf{B}
-  \]
-  \item Assemble global system:
-  \[
-  \mathbf{K}^{(t)}\mathbf{d}^{(t)} = \mathbf{F}^{(t)}
-  \]
-  \item Update material properties for next time step
+  \item Initialize material properties: $E_{bone}$, $E_{fixator}$ (for the specific scenario), $E_{callus}(t_0) = E_{callus}^{initial}$.
+  \item For each time step $t_k$:
+        \begin{enumerate}
+          \item Update callus Young's modulus: $E_{callus}(t_k) = E_{callus}^{initial} + \frac{k}{N_{steps}-1}(E_{callus}^{final} - E_{callus}^{initial})$.
+          \item Compute element stiffness matrices $\mathbf{K}^{e(t_k)}$ using the current material properties for each element.
+          \item Assemble the global stiffness matrix $\mathbf{K}^{(t_k)}$ and global force vector $\mathbf{F}^{(t_k)}$.
+          \item Apply boundary conditions (fixed displacement on one end, applied load on the other).
+          \item Solve the global system for nodal displacements: $\mathbf{K}^{(t_k)}\mathbf{d}^{(t_k)} = \mathbf{F}^{(t_k)}$.
+          \item Calculate element stresses $\bm{\sigma}^{(t_k)}$ and strains $\bm{\varepsilon}^{(t_k)}$.
+        \end{enumerate}
 \end{enumerate}
 
 \section{Your own contribution}
 
+Our primary contribution lies in the development and application of a parametric FEA model to investigate the influence of fixator stiffness on stress transfer and fracture gap mechanics during simulated bone healing. Key aspects of our contribution include:
+
+\subsection{Parametric Study of Fixator Stiffness}
+We systematically varied the Young's modulus of the fixator to represent three distinct clinical scenarios:
+\begin{itemize}
+  \item \textbf{Flexible Fixator}: $E_{fixator} = 35$ GPa (e.g., less rigid material or design)
+  \item \textbf{Standard Fixator}: $E_{fixator} = 70$ GPa (e.g., typical aluminum or titanium alloy)
+  \item \textbf{Rigid Fixator}: $E_{fixator} = 140$ GPa (e.g., stiffer material or more robust design)
+\end{itemize}
+This allows for a direct comparison of how fixator stiffness affects the biomechanical environment of the healing fracture.
+
+\subsection{Time-Dependent Callus Healing Model}
+We implemented a progressive healing model where the Young's modulus of the callus ($E_{callus}$) increases linearly over 20 simulated time steps, from an initial soft tissue stiffness ($E_{callus}^{initial} = 0.1$ GPa) to that of mature bone ($E_{callus}^{final} = 18$ GPa). This simulates the gradual stiffening of the fracture site during the healing process.
+
+\subsection{Quantitative Analysis of Biomechanical Parameters}
+For each simulation step and fixator type, we calculated and tracked key biomechanical indicators:
+\begin{itemize}
+  \item \textbf{Average Von Mises Stress}: Calculated separately for the bone, callus, and fixator regions. This helps quantify stress distribution and the phenomenon of stress shielding.
+  \item \textbf{Fracture Gap Strain}: The average axial strain across the callus region, a critical factor influencing tissue differentiation and healing outcome.
+\end{itemize}
+
+\subsection{Development of a Reusable FEA Simulation Script}
+We developed a Python script utilizing NumPy for numerical computations and Matplotlib for visualization. The script automates:
+\begin{itemize}
+  \item Mesh generation for the 2D bone-fixator-callus model.
+  \item Material property assignment and time-dependent updates for the callus.
+  \item Assembly of global stiffness matrix and application of boundary conditions/loads.
+  \item Solution for displacements and calculation of stresses and strains.
+  \item Post-processing to calculate average stresses and gap strain.
+  \item Generation of visualizations, including:
+        \begin{itemize}
+          \item Von Mises stress contour plots at each healing step.
+          \item Plots showing the evolution of average stresses in bone, callus, and fixator over time.
+          \item Plots showing the evolution of fracture gap strain over time.
+          \item Comparative plots summarizing final stress distributions and gap strain evolution across different fixator stiffnesses.
+        \end{itemize}
+  \item Export of detailed and summary results to CSV files for further analysis.
+\end{itemize}
+This framework allows for efficient exploration of different parameters and scenarios.
+
 \section{Numerical results}
+
+The simulations were run for three fixator stiffness configurations: Flexible (35 GPa), Standard (70 GPa), and Rigid (140 GPa). The healing process was simulated over 20 steps, with the callus stiffness progressively increasing. The table below summarizes the key biomechanical parameters at the final healing step (step 20), where the callus has reached the stiffness of mature bone.
+
+\begin{table}[h!]
+  \centering
+  \caption{Final Biomechanical Parameters at Full Callus Maturation (Step 20)}
+  \label{tab:final_results}
+  \begin{tabular}{lrrrr}
+    \toprule
+    Fixator Group    & Final Stress  & Final Stress & Final Stress & Final Gap Strain   \\
+                     & Fixator (MPa) & Bone (MPa)   & Callus (MPa) & ($\mu\varepsilon$) \\
+    \midrule
+    Flexible Fixator & 48.89         & 25.46        & 25.35        & 1.41               \\
+    Standard Fixator & 64.92         & 17.57        & 16.98        & 0.94               \\
+    Rigid Fixator    & 77.85         & 11.30        & 10.23        & 0.57               \\
+    \bottomrule
+  \end{tabular}
+
+
+  \footnotesize{\textit{Note: Stresses are average Von Mises stresses. Gap strain is average axial strain. Values are derived from the provided CSV output, with stresses converted from Pa to MPa and strain from absolute to microstrain ($\times 10^{-6}$) for readability.}}
+\end{table}
+
+\subsection{Interpretation of Results}
+
+\textbf{Stress Distribution}:
+As fixator stiffness increases from Flexible to Rigid:
+\begin{itemize}
+  \item The stress borne by the \textbf{fixator} increases significantly (48.89 MPa to 77.85 MPa). This is expected, as a stiffer fixator takes up more of the applied load.
+  \item The stress experienced by the \textbf{bone} decreases (25.46 MPa to 11.30 MPa). This demonstrates increased stress shielding with more rigid fixation.
+  \item Similarly, the stress in the fully matured \textbf{callus} also decreases (25.35 MPa to 10.23 MPa), following the trend of the bone.
+\end{itemize}
+These results quantitatively illustrate the stress shielding effect. While the simulation ends with a fully matured callus, during the healing process, the stress experienced by the developing callus would be crucial for mechanotransduction.
+
+\textbf{Fracture Gap Strain}:
+The final axial strain across the fracture gap (now mature callus) decreases as fixator stiffness increases (1.41 $\mu\varepsilon$ for Flexible, 0.94 $\mu\varepsilon$ for Standard, and 0.57 $\mu\varepsilon$ for Rigid). This indicates that more rigid fixation leads to less deformation at the fracture site. The magnitude of interfragmentary strain is a critical factor in determining the pathway of bone healing (e.g., direct vs. indirect healing, formation of different tissue types). The observed strains are very small, which is expected for a fully healed bone under the simulated load. The evolution of this strain during earlier healing phases (when callus is softer) would be more indicative of the healing quality.
+
+The detailed evolution of these parameters over the 20 healing steps, along with stress contour plots, are available in the generated output files and visualizations from the Python script. These provide a more comprehensive understanding of the dynamic changes occurring during the simulated healing process. For instance, plots of "Stress Shielding Effect" would show how the proportion of load carried by the fixator versus the bone/callus changes as the callus matures for each fixator type. Similarly, "Fracture Gap Strain Evolution" plots would depict how strain at the fracture site changes throughout the healing process.
+
 
 \section{Conclusion}
 
@@ -237,7 +320,6 @@ where $\mathbf{B}$ is the strain-displacement matrix.
 % \end{itemize}
 
 
-\citep{kour2014real} % test_citations
 \bibliographystyle{unsrtnat}
 \bibliography{references}  %%% Uncomment this line and comment out the ``thebibliography'' section below to use the external .bib file (using bibtex) .
 
