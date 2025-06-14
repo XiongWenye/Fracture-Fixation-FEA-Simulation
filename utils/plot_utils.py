@@ -85,50 +85,90 @@ def plot_stress_model(
     stresses=None,
     output_dir="output_advanced",
 ):
-    # 如果有应力数据，绘制应力云图
-    if stresses is not None:
-        fig, ax = plt.subplots(figsize=(12, 6))
+    # 静态变量用于收集每2步的图像
+    if not hasattr(plot_stress_model, "collected_steps"):
+        plot_stress_model.collected_steps = []
+        plot_stress_model.collected_imgs = []
 
+    if stresses is not None:
         # 计算von Mises应力
         vm_stress = calculate_von_mises(stresses)
 
         # 创建每个节点的应力值 (取相邻单元的平均)
         node_stresses = np.zeros(nodes.shape[0])
         node_counts = np.zeros(nodes.shape[0])
-
         for elem_idx, elem in enumerate(elements):
             for node in elem:
                 node_stresses[node] += vm_stress[elem_idx]
                 node_counts[node] += 1
-
         node_stresses /= node_counts
 
-        # 创建应力云图
         x = nodes[:, 0]
         y = nodes[:, 1]
         z = node_stresses
 
-        # 创建网格用于绘图
         xi = np.linspace(x.min(), x.max(), 100)
         yi = np.linspace(y.min(), y.max(), 100)
         zi = griddata((x, y), z, (xi[None, :], yi[:, None]), method="cubic")
 
-        # 绘制云图
+        # 只收集步数为2的倍数的图像
+        if step % 2 == 0:
+            plot_stress_model.collected_steps.append(step)
+            plot_stress_model.collected_imgs.append((xi, yi, zi, z.min(), z.max()))
+
+        # 仍然单独保存每步的应力云图（可选）
+        fig, ax = plt.subplots(figsize=(12, 6))
         levels = np.linspace(z.min(), z.max(), 20)
         cs = ax.contourf(xi, yi, zi, levels=levels, cmap="jet", extend="both")
-
-        # 添加颜色条
         cbar = fig.colorbar(cs)
         cbar.set_label("Von Mises Stress (Pa)")
-
-        # 设置标题和标签
         ax.set_title(f"Stress Distribution - Step {step}")
         ax.set_xlabel("Length (m)")
         ax.set_ylabel("Height (m)")
-
-        # 保存应力云图
-        # plt.savefig(f"{output_dir}/stress_images/stress_step_{step:02d}.png")
         plt.savefig(
             os.path.join(output_dir, "stress_images", f"stress_step_{step:02d}.png")
         )
         plt.close()
+
+    # 在最后一次调用时，汇总并绘制所有收集到的图像
+    if hasattr(plot_stress_model, "collected_steps") and step == 19:
+        n = len(plot_stress_model.collected_imgs)
+        ncols = 5
+        nrows = 2
+        fig, axes = plt.subplots(
+            nrows, ncols, figsize=(6 * ncols, 5 * nrows), sharey=True
+        )
+        axes = axes.flatten()
+        # 统一颜色范围
+        vmin = min([img[3] for img in plot_stress_model.collected_imgs])
+        vmax = max([img[4] for img in plot_stress_model.collected_imgs])
+        for i, (xi, yi, zi, _, _) in enumerate(plot_stress_model.collected_imgs):
+            ax = axes[i]
+            levels = np.linspace(vmin, vmax, 20)
+            cs = ax.contourf(
+                xi,
+                yi,
+                zi,
+                levels=levels,
+                cmap="jet",
+                extend="both",
+                vmin=vmin,
+                vmax=vmax,
+            )
+            ax.set_title(f"Step {plot_stress_model.collected_steps[i]}")
+            ax.set_xlabel("Length (m)")
+            if i % ncols == 0:
+                ax.set_ylabel("Height (m)")
+        # 隐藏多余的子图
+        for j in range(i + 1, nrows * ncols):
+            axes[j].axis("off")
+        # 添加一个统一的颜色条
+        fig.subplots_adjust(right=0.88)
+        cbar_ax = fig.add_axes([0.90, 0.15, 0.02, 0.7])
+        fig.colorbar(cs, cax=cbar_ax, label="Von Mises Stress (Pa)")
+        plt.suptitle("Stress Distribution at Steps Multiple of 2")
+        plt.savefig(os.path.join(output_dir, "stress_images", "stress_summary.png"))
+        plt.close()
+        # 清理静态变量
+        del plot_stress_model.collected_steps
+        del plot_stress_model.collected_imgs
