@@ -275,7 +275,17 @@ The average axial strain across the fracture gap (which, at Step 20, is mature c
 The detailed temporal evolution of these biomechanical parameters over the 20 simulated healing steps, along with illustrative stress contour plots, are available in the generated output files and visualizations produced by the Python simulation script. These comprehensive datasets provide a deeper understanding of the dynamic mechanobiological changes occurring throughout the simulated healing trajectory. For instance, plots depicting the "Stress Evolution" demonstrate how the proportion of load carried by the fixator versus the bone/callus system changes as the callus matures under each fixator stiffness condition. Similarly, "Fracture Gap Strain Evolution" plots trace the strain history at the fracture site. (as in figures \ref{fig:flexible_gap_strain_stress_shielding}, \ref{fig:standard_gap_strain_stress_shielding}, and \ref{fig:rigid_gap_strain_stress_shielding})
 
 \subsection{Visualizations}
-This section presents selected graphical results from the parametric study, illustrating the impact of different fixator stiffnesses on stress distribution and fracture gap strain dynamics during the simulated healing process.
+This section presents a detailed analysis of the graphical results obtained from the parametric finite element study. The findings illustrate the impact of varying fixator stiffness on the biomechanical environment at the fracture site, specifically concerning stress distribution and fracture gap strain dynamics. The core principle governing these phenomena is the dynamic load sharing between the implant and the maturing callus tissue throughout the simulated healing process.
+
+\textbf{Fracture Gap Strain Dynamics}
+
+The evolution of strain across the fracture gap serves as a primary indicator of the mechanical stability provided by each fixation construct. The results are presented in the left panels of Figures 1, 2, and 3.
+
+\begin{itemize}
+    \item \textbf{Initial Fracture Gap Strain:} At the commencement of the simulation (Step 0), a clear inverse relationship is observed between the stiffness of the fixator and the magnitude of the initial strain. The Flexible Fixator model yielded the highest initial strain (approx. $6.2 \times 10^{-6}$), whereas the Rigid Fixator model resulted in the lowest (approx. $1.7 \times 10^{-6}$). This outcome is consistent with mechanical principles, as a more rigid construct inherently provides greater stability, thereby restricting interfragmentary motion and reducing strain under a given load.
+
+    \item \textbf{Temporal Evolution of Strain:} A consistent trend of decreasing strain over the simulation period is evident across all three models. This reduction is a direct consequence of the simulated healing, which is modeled by a progressive increase in the elastic modulus of the fracture callus. As the callus matures and its stiffness increases, the overall structural integrity of the bone-implant construct is enhanced. A stiffer construct deforms less under a constant applied load, leading to the observed decrease in fracture gap strain.
+\end{itemize}
 
 \begin{figure}[htbp]
   \centering
@@ -307,7 +317,7 @@ This section presents selected graphical results from the parametric study, illu
   \label{fig:standard_gap_strain_stress_shielding}
 \end{figure}
 
-\begin{figure}[htbp]
+\begin{figure}[H]
   \centering
   \begin{minipage}{0.45\textwidth}
     \centering
@@ -322,7 +332,20 @@ This section presents selected graphical results from the parametric study, illu
   \label{fig:rigid_gap_strain_stress_shielding}
 \end{figure}
 
-\begin{figure}[H]
+
+\textbf{Stress Distribution and Dynamic Load Sharing}
+
+The analysis of stress evolution within each component—Fixator, Bone, and Callus—elucidates the mechanism of dynamic load sharing. These results are depicted in the right panels of Figures 1-3 and the contour plots of Figure 4.
+
+\begin{itemize}
+    \item \textbf{Initial Load Bearing State (Step 0):} In the initial state, the callus is modeled as mechanically incompetent due to its very low elastic modulus. Consequently, the external fixator bears the vast majority of the applied load. This is substantiated by the high initial stress levels in the fixator and near-zero stress in the callus, as shown in the line graphs. The contour plots in Figure 4 corroborate this, visualizing the callus region in deep blue (low stress) and the fixator in red (high stress).
+
+    \item \textbf{Temporal Load Transfer:} A significant shift in load-bearing responsibility is observed as the simulation progresses. The average stress within the callus increases monotonically from nearly zero, while the stress in the fixator concurrently experiences a slight decrease. This demonstrates a direct transfer of mechanical load from the implant to the maturing callus.
+
+    \item \textbf{The Effect of Fixator Stiffness and Stress Shielding:} The degree of load transfer is fundamentally governed by the fixator's stiffness, a phenomenon known as \textbf{stress shielding}. The Rigid Fixator maintains the highest stress levels throughout the simulation, effectively "shielding" the fracture site from mechanical stimuli by carrying a disproportionately large share of the load. This results in the lowest stress development within the callus. Conversely, the Flexible Fixator facilitates the greatest degree of load sharing, leading to the highest final stress in the callus, as the healing tissue is compelled to participate more actively in load bearing.
+\end{itemize}
+
+\begin{figure}[htbp]
   \centering
   \begin{minipage}{\textwidth}
     \centering
@@ -342,6 +365,8 @@ This section presents selected graphical results from the parametric study, illu
   \caption{Stress distribution summary comparison for different fixator stiffnesses (Top: Flexible Fixator, Middle: Standard Fixator, Bottom: Rigid Fixator).}
   \label{fig:stress_summary_comparison}
 \end{figure}
+
+In summary, the simulation successfully demonstrates the fundamental biomechanical trade-offs inherent in fracture fixation. The stiffness of the selected implant dictates the initial mechanical environment, with more rigid fixators offering superior stability and lower initial gap strain. The healing process is characterized by a dynamic transfer of load from the implant to the maturing tissue. This investigation confirms that a more rigid fixator enhances the stress-shielding effect, while a more flexible fixator promotes load sharing. These findings are in strong agreement with established principles of fracture fixation biomechanics.
 
 \section{Conclusion}
 This project successfully developed and applied a 2D finite element model to simulate the biomechanics of fracture healing, specifically focusing on the influence of varying fixator stiffness. The parametric study yielded several key findings:
