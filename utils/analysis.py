@@ -4,42 +4,6 @@ from utils.materials import get_material_type
 from utils.fea_core import plane_stress_matrix
 
 
-def calculate_stress(
-    nodes, elements, U, material_props, bone_width, fixator_thickness, fracture_params
-):
-    element_stresses = np.zeros((len(elements), 3))
-    for elem_idx, elem in enumerate(elements):
-        x_center = np.mean(nodes[elem, 0])
-        y_center = np.mean(nodes[elem, 1])
-        material_type = get_material_type(
-            x_center, y_center, bone_width, fixator_thickness, fracture_params
-        )
-        E, nu = material_props[material_type]["E"], material_props[material_type]["nu"]
-        D = plane_stress_matrix(E, nu)
-        Ue = U[
-            np.array([2 * n for n in elem] + [2 * n + 1 for n in elem])
-            .reshape(2, 4)
-            .T.flatten()
-        ]
-
-        xi, eta = 0, 0
-        dN_dxi = 0.25 * np.array([-(1 - eta), (1 - eta), (1 + eta), -(1 + eta)])
-        dN_deta = 0.25 * np.array([-(1 - xi), -(1 + xi), (1 + xi), (1 - xi)])
-        elem_nodes = nodes[elem, :]
-        J = np.dot(np.array([dN_dxi, dN_deta]), elem_nodes)
-        invJ = np.linalg.inv(J)
-        dN_dxy = np.dot(invJ, np.array([dN_dxi, dN_deta]))
-        B = np.zeros((3, 8))
-        for i in range(4):
-            B[0, 2 * i] = dN_dxy[0, i]
-            B[1, 2 * i + 1] = dN_dxy[1, i]
-            B[2, 2 * i] = dN_dxy[1, i]
-            B[2, 2 * i + 1] = dN_dxy[0, i]
-
-        element_stresses[elem_idx, :] = D @ B @ Ue
-    return element_stresses
-
-
 # 计算von Mises应力
 def calculate_von_mises(stress):
     sxx, syy, txy = stress[:, 0], stress[:, 1], stress[:, 2]

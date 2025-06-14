@@ -19,6 +19,7 @@
 \usepackage{amsmath}
 \usepackage{bm}            % bold math symbols
 \usepackage{float}         % for H float option
+\usepackage{tikz}
 
 
 \title{Project Report: Fracture Fixation FEA Simulation}
@@ -94,13 +95,20 @@ Finite Element Analysis has become an indispensable tool in biomechanical resear
 
 A central concept in fracture fixation is "stress shielding," where an overly rigid fixation device bears a disproportionate share of the applied load, thereby reducing the mechanical stimulus transmitted to the healing bone. While a degree of stress shielding is necessary for initial fracture stability, excessive shielding can impede natural bone healing by inhibiting callus formation and its subsequent remodeling into lamellar bone. Conversely, insufficient stability due to overly flexible fixation can lead to excessive interfragmentary motion, potentially resulting in hypertrophic non-union or fixation failure. Consequently, achieving an optimal mechanical environment that balances stability with appropriate mechanical stimulation is paramount for successful fracture healing.
 
-Recent advancements in computational biomechanics have focused on developing sophisticated models that can simulate the mechanobiological processes governing fracture healing. These models often incorporate time-dependent material properties for the healing callus and consider the influence of mechanical stimuli, such as strain or hydrostatic stress, on tissue differentiation pathways \citep{morgan2024novel}. Parametric studies using FEA are instrumental in investigating how factors like fixator stiffness, fracture gap size, loading conditions, and healing progression affect the stress transfer dynamics from the fixator to the bone. This project aligns with this research trajectory by systematically investigating how different fixator stiffnesses influence stress distribution patterns and fracture gap strains throughout a simulated healing period.
+Recent advancements in computational biomechanics have focused on developing sophisticated models that can simulate the mechanobiological processes governing fracture healing. These models often incorporate time-dependent material properties for the healing callus and consider the influence of mechanical stimuli, such as strain or hydrostatic stress, on tissue differentiation pathways \citep{morgan2024novel}. Parametric studies using FEA are instrumental in investigating how factors like fixator stiffness, fracture gap size, loading conditions, and healing progression affect the stress transfer dynamics from the fixator to the bone.
 
 \section{Integration of the content of the course}
 
 This study leverages Finite Element Analysis to model the complex stress redistribution dynamics that occur during fracture healing. The model incorporates time-dependent material properties for the healing callus and facilitates parametric studies on the influence of fixator stiffness.
 
 \subsection{Problem Definition}
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.5\textwidth]{model_simulation.jpg}
+  \caption{Model}
+  \label{fig:model}
+\end{figure}
 
 \begin{itemize}
   \item \textbf{Domain Type}: Non-homogeneous, linear elastic body subjected to quasi-static loading, featuring time-varying material properties (specifically, the elastic modulus of the callus).
@@ -157,29 +165,225 @@ The fracture gap, filled with healing callus, is modeled as a distinct region ch
 
 \subsection{Finite Element Implementation}
 
-\subsubsection{Element Formulation}
+The FE model employs bilinear quadrilateral elements (Q4), whose width is $2m$, height is $2l$.
 
-The FE model employs bilinear quadrilateral elements (Q4), characterized by:
-\begin{itemize}
-  \item Shape functions defined in natural coordinates ($\xi,\eta$):
-        \[
-          N_i(\xi,\eta) = \frac{1}{4}(1+\xi_i\xi)(1+\eta_i\eta), \quad \text{where } \xi_i,\eta_i \in \{-1,1\} \text{ for } i=1, \dots, 4
-        \]
-  \item The strain-displacement matrix, $\mathbf{B}$, which relates nodal displacements to element strains:
-        \[
-          \mathbf{B} = \begin{bmatrix}
-            \frac{\partial N_1}{\partial x} & 0                               & \cdots & \frac{\partial N_4}{\partial x} & 0                               \\
-            0                               & \frac{\partial N_1}{\partial y} & \cdots & 0                               & \frac{\partial N_4}{\partial y} \\
-            \frac{\partial N_1}{\partial y} & \frac{\partial N_1}{\partial x} & \cdots & \frac{\partial N_4}{\partial y} & \frac{\partial N_4}{\partial x}
-          \end{bmatrix}
-        \]
-  \item Element stiffness matrices, $\mathbf{k}^e$, computed using 2$\times$2 Gauss quadrature:
-        \begin{align*}
-          \mathbf{k}^e & = \int_{-1}^{1}\int_{-1}^{1} \mathbf{B}^T(\xi,\eta)\mathbf{D}\mathbf{B}(\xi,\eta)|\mathbf{J}(\xi,\eta)| \, t_{thickness} \, d\xi d\eta             \\
-                       & \approx \sum_{i=1}^{2}\sum_{j=1}^{2} w_iw_j\mathbf{B}^T(\xi_i,\eta_j)\mathbf{D}\mathbf{B}(\xi_i,\eta_j)|\mathbf{J}(\xi_i,\eta_j)| \, t_{thickness}
-        \end{align*}
-        where integration points are at $\xi_i,\eta_j = \pm\frac{1}{\sqrt{3}}$ with weights $w_i=w_j=1$, and $t_{thickness}$ is the out-of-plane thickness for plane stress.
-\end{itemize}
+\subsubsection{Nodal Displacement Matrix}
+
+\[
+\mathbf{d} = \begin{bmatrix}
+d_1 \\
+d_2 \\
+d_3 \\
+d_4
+\end{bmatrix} = \begin{bmatrix}
+u_1 \\
+v_1 \\
+u_2 \\
+v_2 \\
+u_3 \\
+v_3 \\
+u_4 \\
+v_4
+\end{bmatrix}
+\]
+
+\subsubsection{Selection of Displacement Functions}
+
+\[
+\begin{cases}
+u(x, y) = a_1 + a_2 x + a_3 y + a_4 xy \\
+v(x, y) = b_1 + b_2 x + b_3 y + b_4 xy
+\end{cases}
+\]
+
+Eliminating \( a, b \) yields
+
+\[
+\begin{cases}
+u(x, y) = \frac{1}{4bh} \left[ (m - y)(l - x)u_1 + (m + y)(l - x)u_2 + (m + y)(l + x)u_3 + (m - y)(l + x)u_4 \right] \\
+v(x, y) = \frac{1}{4bh} \left[ (m - y)(l - x)v_1 + (m + y)(l - x)v_2 + (m + y)(l + x)v_3 + (m - y)(l + x)v_4 \right]
+\end{cases}
+\]
+
+\[
+\mathbf{\psi} =
+\begin{bmatrix}
+u(x, y) \\
+v(x, y)
+\end{bmatrix} = [N] \{d\}
+\]
+
+The shape functions are as follows:
+
+\[
+\mathbf{N} = \begin{bmatrix}
+N_1 & 0 & N_2 & 0 & N_3 & 0 & N_4 & 0 \\
+0 & N_1 & 0 & N_2 & 0 & N_3 & 0 & N_4
+\end{bmatrix}
+\]
+
+where
+
+\[
+\begin{matrix}
+N_1 = \frac{1}{4bh} (m - y)(l - x) & N_2 = \frac{1}{4bh} (m + y)(l - x) \\
+N_3 = \frac{1}{4bh} (m + y)(l + x) & N_4 = \frac{1}{4bh} (m - y)(l + x)
+\end{matrix}
+\]
+
+\subsubsection{Coordinate Transformation}
+To simplify calculations, the quadrilateral in the \( x-y \) coordinate system is transformed into a square centered at the origin with a side length of 2 in the \( \xi-\eta \) coordinate system. The transformation relationship is:
+
+\[
+\begin{cases}
+x = x_0 + m \xi \\
+y = y_0 + l \eta
+\end{cases}
+\]
+
+where \( x_0, y_0 \) are the coordinates of the element center.
+Let the coordinate transformation from \( x-y \) to \( \xi-\eta \) be defined as:
+
+\[
+\begin{cases}
+x = a_1 + a_2 \xi + a_3 \eta + a_4 \xi \eta \\
+y = b_1 + b_2 \xi + b_3 \eta + b_4 \xi \eta
+\end{cases}
+\]
+
+Given the four node coordinates \((1, 1)\), \((1, -1)\), \((-1, -1)\), \((-1, 1)\) in the \( \xi-\eta \) coordinate system, corresponding to \((x_1, y_1)\), \((x_2, y_2)\), \((x_3, y_3)\), \((x_4, y_4)\) in the \( x-y \) coordinate system, the values of \( a_1, a_2, a_3, a_4, b_1, b_2, b_3, b_4 \) can be determined.
+Thus, the coordinate transformation from \( \xi-\eta \) to \( x-y \) is:
+
+\[
+\begin{cases}
+x = \frac{1}{4} \left[(1 - \xi)(1 - \eta)x_1 + (1 + \xi)(1 - \eta)x_2 + (1 + \xi)(1 + \eta)x_3 + (1 - \xi)(1 + \eta)x_4\right] \\
+y = \frac{1}{4} \left[(1 - \xi)(1 - \eta)y_1 + (1 + \xi)(1 - \eta)y_2 + (1 + \xi)(1 + \eta)y_3 + (1 - \xi)(1 + \eta)y_4\right]
+\end{cases}
+\]
+
+That is,
+
+\[
+\begin{bmatrix}
+x \\
+y
+\end{bmatrix} = \mathbf{N} \mathbf{d} =
+\begin{bmatrix}
+N_1 & 0 & N_2 & 0 & N_3 & 0 & N_4 & 0 \\
+0 & N_1 & 0 & N_2 & 0 & N_3 & 0 & N_4
+\end{bmatrix}
+\begin{bmatrix}
+x_1 \\
+y_1 \\
+x_2 \\
+y_2 \\
+x_3 \\
+y_3 \\
+x_4 \\
+y_4
+\end{bmatrix}
+\]
+
+where
+
+\[
+\begin{matrix}
+N_1 = \frac{1}{4} (1 - \xi)(1 -\eta) & N_2 = \frac{1}{4} (1 + \xi)(1 - \eta) \\
+N_3 = \frac{1}{4} (1 + \xi)(1 + \eta) & N_4 = \frac{1}{4} (1 - \xi)(1 + \eta)
+\end{matrix}
+\]
+
+\subsubsection{Stress/Strain Calculation}
+
+The stress matrix is:
+
+\[
+\mathbf{\sigma} = \begin{bmatrix}
+\sigma_x \\
+\sigma_y \\
+\tau_{xy}
+\end{bmatrix} = \mathbf{D} \mathbf{\epsilon}
+\]
+
+The strain matrix is:
+
+\[
+\mathbf{\epsilon} = \begin{bmatrix}
+\epsilon_x \\
+\epsilon_y \\
+\gamma_{xy}
+\end{bmatrix}
+= \begin{bmatrix}
+\frac{\partial u}{\partial \xi} \\
+\frac{\partial v}{\partial \eta} \\
+\frac{\partial u}{\partial \eta} + \frac{\partial v}{\partial \xi}
+\end{bmatrix}
+= \begin{bmatrix}
+\frac{\partial()}{\partial \xi} & 0 \\
+0 & \frac{\partial()}{\partial \eta} \\
+\frac{\partial()}{\partial \eta} & \frac{\partial()}{\partial \xi}
+\end{bmatrix}
+\begin{bmatrix}
+u \\
+v
+\end{bmatrix}
+\]
+
+Since
+
+\[
+\begin{cases}
+\frac{\partial f}{\partial \xi} = \frac{\partial f}{\partial \xi} \cdot \frac{\partial \xi}{\partial \xi} + \frac{\partial f}{\partial \eta} \cdot \frac{\partial \eta}{\partial \xi} \\
+\frac{\partial f}{\partial \eta} = \frac{\partial f}{\partial \xi} \cdot \frac{\partial \xi}{\partial \eta} + \frac{\partial f}{\partial \eta} \cdot \frac{\partial \eta}{\partial \eta}
+\end{cases}
+\]
+
+Therefore,
+
+\[
+\begin{cases}
+\frac{\partial f}{\partial \xi} = \frac{1}{|J|}\left[\frac{\partial \eta}{\partial \eta} \frac{\partial f}{\partial \xi} - \frac{\partial \eta}{\partial \xi} \frac{\partial f}{\partial \eta}\right] \\
+\frac{\partial f}{\partial \eta} = \frac{1}{|J|}\left[\frac{\partial \xi}{\partial \xi} \frac{\partial f}{\partial \eta} - \frac{\partial \xi}{\partial \eta} \frac{\partial f}{\partial \xi}\right]
+\end{cases}
+\]
+
+where \( |J| \) is the Jacobian determinant:
+
+\[
+|J| = \begin{vmatrix}
+\frac{\partial \xi}{\partial \xi} & \frac{\partial \xi}{\partial \eta} \\
+\frac{\partial \eta}{\partial \xi} & \frac{\partial \eta}{\partial \eta}
+\end{vmatrix}
+\]
+
+Thus,
+
+\[
+\{B\} = \frac{1}{|J|}
+\begin{bmatrix}
+B_1 & B_2 & B_3 & B_4 \\
+\end{bmatrix}
+\]
+
+where
+
+\[
+[B_i] = \begin{bmatrix}
+\frac{\partial N_i}{\partial \xi} & 0 \\
+0 & \frac{\partial N_i}{\partial \eta} \\
+\frac{\partial N_i}{\partial \eta} & \frac{\partial N_i}{\partial \xi}
+\end{bmatrix}
+\]
+
+\subsubsection{Element Stiffness Matrix}
+
+Element stiffness matrices, $\mathbf{k}^e$, is computed using 2$\times$2 Gauss quadrature:
+
+\begin{align*}
+  \mathbf{k}^e & = \int_{-1}^{1}\int_{-1}^{1} \mathbf{B}^T(\xi,\eta)\mathbf{D}\mathbf{B}(\xi,\eta)|\mathbf{J}(\xi,\eta)| \, t_{thickness} \, d\xi d\eta             \\
+                & \approx \sum_{i=1}^{2}\sum_{j=1}^{2} w_iw_j\mathbf{B}^T(\xi_i,\eta_j)\mathbf{D}\mathbf{B}(\xi_i,\eta_j)|\mathbf{J}(\xi_i,\eta_j)| \, t_{thickness}
+\end{align*}
+where integration points are at $\xi_i,\eta_j = \pm\frac{1}{\sqrt{3}}$ with weights $w_i=w_j=1$, and $t_{thickness}$ is the out-of-plane thickness for plane stress.
 
 \subsubsection{Postprocessing and Analysis}
 
@@ -199,7 +403,7 @@ Visualization techniques employed:
 \end{itemize}
 
 
-\section{Your own contribution}
+\section{Our own contribution}
 
 Our primary contribution in this project is the systematic development and application of a parametric Finite Element Analysis model designed to investigate the influence of varying fixator stiffness on stress transfer mechanisms and fracture gap biomechanics throughout a simulated bone healing process. The key facets of our contribution are:
 
@@ -389,11 +593,11 @@ Future research could build upon this foundation by extending the model to three
 
 \section{Appendix}
 
-Student A: code of simulation, plot, 33$\%$ report writing
+Wenyu Xiong: code of simulation, plot, 33$\%$ report writing
 
-Student B: code of analysis, plot, 33$\%$ report writing
+Renyi Yang: code of analysis, plot, 33$\%$ report writing
 
-Student C: code of fea-core, plot, 33$\%$ report writing
+Zijian Li: code of fea-core, plot, 33$\%$ report writing
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
