@@ -1,6 +1,9 @@
 import os
 import matplotlib.pyplot as plt
 import numpy as np
+from scipy.interpolate import griddata
+
+from utils.analysis import calculate_von_mises
 
 
 def plot_analysis_results(results, output_dir):
@@ -71,3 +74,61 @@ def plot_parametric_comparison(all_results, output_dir="output_advanced"):
     plt.tight_layout()
     plt.savefig(os.path.join(output_dir, "parametric_comparison.png"))
     plt.close()
+
+
+def plot_stress_model(
+    nodes,
+    elements,
+    material_props,
+    step,
+    U=None,
+    stresses=None,
+    output_dir="output_advanced",
+):
+    # 如果有应力数据，绘制应力云图
+    if stresses is not None:
+        fig, ax = plt.subplots(figsize=(12, 6))
+
+        # 计算von Mises应力
+        vm_stress = calculate_von_mises(stresses)
+
+        # 创建每个节点的应力值 (取相邻单元的平均)
+        node_stresses = np.zeros(nodes.shape[0])
+        node_counts = np.zeros(nodes.shape[0])
+
+        for elem_idx, elem in enumerate(elements):
+            for node in elem:
+                node_stresses[node] += vm_stress[elem_idx]
+                node_counts[node] += 1
+
+        node_stresses /= node_counts
+
+        # 创建应力云图
+        x = nodes[:, 0]
+        y = nodes[:, 1]
+        z = node_stresses
+
+        # 创建网格用于绘图
+        xi = np.linspace(x.min(), x.max(), 100)
+        yi = np.linspace(y.min(), y.max(), 100)
+        zi = griddata((x, y), z, (xi[None, :], yi[:, None]), method="cubic")
+
+        # 绘制云图
+        levels = np.linspace(z.min(), z.max(), 20)
+        cs = ax.contourf(xi, yi, zi, levels=levels, cmap="jet", extend="both")
+
+        # 添加颜色条
+        cbar = fig.colorbar(cs)
+        cbar.set_label("Von Mises Stress (Pa)")
+
+        # 设置标题和标签
+        ax.set_title(f"Stress Distribution - Step {step}")
+        ax.set_xlabel("Length (m)")
+        ax.set_ylabel("Height (m)")
+
+        # 保存应力云图
+        # plt.savefig(f"{output_dir}/stress_images/stress_step_{step:02d}.png")
+        plt.savefig(
+            os.path.join(output_dir, "stress_images", f"stress_step_{step:02d}.png")
+        )
+        plt.close()

@@ -3,59 +3,7 @@ import matplotlib.pyplot as plt
 import os
 import shutil
 import pandas as pd
-
-
-# 平面应力弹性矩阵
-def plane_stress_matrix(E, nu):
-    return E / (1 - nu**2) * np.array([[1, nu, 0], [nu, 1, 0], [0, 0, (1 - nu) / 2]])
-
-
-# 计算单元刚度矩阵
-def element_stiffness(nodes, element, D):
-    # 4节点四边形等参元
-    xi = np.array([-1 / np.sqrt(3), 1 / np.sqrt(3), 1 / np.sqrt(3), -1 / np.sqrt(3)])
-    eta = np.array([-1 / np.sqrt(3), -1 / np.sqrt(3), 1 / np.sqrt(3), 1 / np.sqrt(3)])
-    weights = np.array([1, 1, 1, 1])
-
-    ke = np.zeros((8, 8))
-
-    for gp in range(4):
-        # 形函数导数
-        dN_dxi = 0.25 * np.array(
-            [-(1 - eta[gp]), (1 - eta[gp]), (1 + eta[gp]), -(1 + eta[gp])]
-        )
-        dN_deta = 0.25 * np.array(
-            [-(1 - xi[gp]), -(1 + xi[gp]), (1 + xi[gp]), (1 - xi[gp])]
-        )
-
-        # 雅可比矩阵
-        J = np.zeros((2, 2))
-        for i in range(4):
-            node_idx = element[i]
-            x, y = nodes[node_idx, :]
-            J[0, 0] += dN_dxi[i] * x
-            J[0, 1] += dN_dxi[i] * y
-            J[1, 0] += dN_deta[i] * x
-            J[1, 1] += dN_deta[i] * y
-
-        detJ = np.linalg.det(J)
-        invJ = np.linalg.inv(J)
-
-        # 形函数对x,y的导数
-        dN_dx = invJ[0, 0] * dN_dxi + invJ[0, 1] * dN_deta
-        dN_dy = invJ[1, 0] * dN_dxi + invJ[1, 1] * dN_deta
-
-        # B矩阵
-        B = np.zeros((3, 8))
-        for i in range(4):
-            B[0, 2 * i] = dN_dx[i]
-            B[1, 2 * i + 1] = dN_dy[i]
-            B[2, 2 * i] = dN_dy[i]
-            B[2, 2 * i + 1] = dN_dx[i]
-
-        ke += B.T @ D @ B * detJ * weights[gp]
-
-    return ke
+from scipy.interpolate import griddata
 
 
 # 计算von Mises应力
@@ -405,6 +353,64 @@ def plot_parametric_comparison(all_results, output_dir="output_advanced"):
     plt.close()
 
 
+def plot_model(
+    nodes,
+    elements,
+    material_props,
+    step,
+    U=None,
+    stresses=None,
+    output_dir="output_advanced",
+):
+    # 如果有应力数据，绘制应力云图
+    if stresses is not None:
+        fig, ax = plt.subplots(figsize=(12, 6))
+
+        # 计算von Mises应力
+        vm_stress = calculate_von_mises(stresses)
+
+        # 创建每个节点的应力值 (取相邻单元的平均)
+        node_stresses = np.zeros(nodes.shape[0])
+        node_counts = np.zeros(nodes.shape[0])
+
+        for elem_idx, elem in enumerate(elements):
+            for node in elem:
+                node_stresses[node] += vm_stress[elem_idx]
+                node_counts[node] += 1
+
+        node_stresses /= node_counts
+
+        # 创建应力云图
+        x = nodes[:, 0]
+        y = nodes[:, 1]
+        z = node_stresses
+
+        # 创建网格用于绘图
+        xi = np.linspace(x.min(), x.max(), 100)
+        yi = np.linspace(y.min(), y.max(), 100)
+        zi = griddata((x, y), z, (xi[None, :], yi[:, None]), method="cubic")
+
+        # 绘制云图
+        levels = np.linspace(z.min(), z.max(), 20)
+        cs = ax.contourf(xi, yi, zi, levels=levels, cmap="jet", extend="both")
+
+        # 添加颜色条
+        cbar = fig.colorbar(cs)
+        cbar.set_label("Von Mises Stress (Pa)")
+
+        # 设置标题和标签
+        ax.set_title(f"Stress Distribution - Step {step}")
+        ax.set_xlabel("Length (m)")
+        ax.set_ylabel("Height (m)")
+
+        # 保存应力云图
+        # plt.savefig(f"{output_dir}/stress_images/stress_step_{step:02d}.png")
+        plt.savefig(
+            os.path.join(output_dir, "stress_images", f"stress_step_{step:02d}.png")
+        )
+        plt.close()
+
+
 # --- 主模拟函数（重构后）---
 
 
@@ -471,6 +477,9 @@ def run_simulation(simulation_params, output_dir):
             fracture_params,
         )
 
+        # 可视化应力
+        plot_model(nodes, elements, material_props, step, U, stresses, output_dir)
+
         # 计算并存储分析指标
         avg_stresses = calculate_average_stresses(
             nodes, elements, stresses, bone_width, fixator_thickness, fracture_params
@@ -524,6 +533,7 @@ if __name__ == "__main__":
         # 为每次模拟创建单独的输出目录
         sim_output_dir = os.path.join(base_dir, params[1])
         os.makedirs(sim_output_dir)
+        os.makedirs(os.path.join(sim_output_dir, "stress_images"))
 
         # 运行模拟并保存结果
         results = run_simulation(params, sim_output_dir)

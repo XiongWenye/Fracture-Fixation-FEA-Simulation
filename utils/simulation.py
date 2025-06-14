@@ -9,7 +9,7 @@ from utils.analysis import (
     calculate_average_stresses,
     calculate_fracture_gap_strain,
 )
-from utils.plot_utils import plot_analysis_results
+from utils.plot_utils import plot_analysis_results, plot_stress_model
 
 
 def apply_bc_and_loads(nodes, K, F, applied_load, fixator_length):
@@ -99,6 +99,11 @@ def run_simulation(simulation_params, output_dir):
             bone_width,
             fixator_thickness,
             fracture_params,
+        )
+
+        # 可视化应力模型
+        plot_stress_model(
+            nodes, elements, material_props, step, U, stresses, output_dir
         )
 
         # 计算并存储分析指标
