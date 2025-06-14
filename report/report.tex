@@ -272,86 +272,75 @@ These results quantitatively illustrate the phenomenon of stress shielding. Whil
 \textbf{Fracture Gap Strain}:
 The average axial strain across the fracture gap (which, at Step 20, is mature callus) diminishes as fixator stiffness increases: 1.41 $\mu\varepsilon$ for the Flexible Fixator, 0.94 $\mu\varepsilon$ for the Standard Fixator, and 0.57 $\mu\varepsilon$ for the Rigid Fixator. This indicates that more rigid fixation leads to reduced deformation (i.e., greater stability) at the fracture site. The magnitude of interfragmentary strain is a well-established critical factor influencing the pathway of bone healing (e.g., direct versus indirect healing, and the types of tissues formed). The very small strain values observed at Step 20 are expected for a fully healed bone segment under the simulated load. The evolution of this strain during the earlier, more critical phases of healing (when the callus is significantly softer) would be more directly indicative of the quality and type of healing response.
 
-The detailed temporal evolution of these biomechanical parameters over the 20 simulated healing steps, along with illustrative stress contour plots, are available in the generated output files and visualizations produced by the Python simulation script. These comprehensive datasets provide a deeper understanding of the dynamic mechanobiological changes occurring throughout the simulated healing trajectory. For instance, plots depicting the "Stress Evolution" (as in Figures \ref{fig:flexible_stress_shielding}, \ref{fig:standard_stress_shielding}, \ref{fig:rigid_stress_shielding}) demonstrate how the proportion of load carried by the fixator versus the bone/callus system changes as the callus matures under each fixator stiffness condition. Similarly, "Fracture Gap Strain Evolution" plots (Figures \ref{fig:flexible_gap_strain}, \ref{fig:standard_gap_strain}, \ref{fig:rigid_gap_strain}) trace the strain history at the fracture site.
+The detailed temporal evolution of these biomechanical parameters over the 20 simulated healing steps, along with illustrative stress contour plots, are available in the generated output files and visualizations produced by the Python simulation script. These comprehensive datasets provide a deeper understanding of the dynamic mechanobiological changes occurring throughout the simulated healing trajectory. For instance, plots depicting the "Stress Evolution" demonstrate how the proportion of load carried by the fixator versus the bone/callus system changes as the callus matures under each fixator stiffness condition. Similarly, "Fracture Gap Strain Evolution" plots trace the strain history at the fracture site. (as in figures \ref{fig:flexible_gap_strain_stress_shielding}, \ref{fig:standard_gap_strain_stress_shielding}, and \ref{fig:rigid_gap_strain_stress_shielding})
 
 \subsection{Visualizations}
 This section presents selected graphical results from the parametric study, illustrating the impact of different fixator stiffnesses on stress distribution and fracture gap strain dynamics during the simulated healing process.
 
-\subsubsection{Flexible Fixator (\texorpdfstring{$E_{fixator} = 35$}{E\_fixator = 35} GPa)}
-\begin{figure}[H]
+\begin{figure}[htbp]
   \centering
   \begin{minipage}{0.45\textwidth}
     \centering
     \includegraphics[width=\textwidth]{../output_advanced/Flexible/gap_strain.png}
-    \caption{Fracture gap strain evolution for Flexible Fixator}
-    \label{fig:flexible_gap_strain}
   \end{minipage}
   \hfill
   \begin{minipage}{0.45\textwidth}
     \centering
     \includegraphics[width=\textwidth]{../output_advanced/Flexible/stress_shielding.png}
-    \caption{Stress evolution for Flexible Fixator}
-    \label{fig:flexible_stress_shielding}
   \end{minipage}
+  \caption{Gap strain evolution (Left) and Stress evolution (Right) for Flexible Fixator}
+  \label{fig:flexible_gap_strain_stress_shielding}
 \end{figure}
 
-\begin{figure}[H]
-  \centering
-  \includegraphics[width=0.9\textwidth]{../output_advanced/Flexible/stress_summary.png}
-  \caption{Stress distribution summary for Flexible Fixator}
-  \label{fig:flexible_stress_summary}
-\end{figure}
-
-\subsubsection{Standard Fixator (\texorpdfstring{$E_{fixator} = 70$}{E\_fixator = 70} GPa)}
-
-\begin{figure}[H]
+\begin{figure}[htbp]
   \centering
   \begin{minipage}{0.45\textwidth}
     \centering
     \includegraphics[width=\textwidth]{../output_advanced/Standard/gap_strain.png}
-    \caption{Fracture gap strain evolution for Standard Fixator}
-    \label{fig:standard_gap_strain}
   \end{minipage}
   \hfill
   \begin{minipage}{0.45\textwidth}
     \centering
     \includegraphics[width=\textwidth]{../output_advanced/Standard/stress_shielding.png}
-    \caption{Stress evolution for Standard Fixator}
-    \label{fig:standard_stress_shielding}
   \end{minipage}
+  \caption{Fracture gap strain evolution (Left) and Stress evolution (Right) for Standard Fixator}
+  \label{fig:standard_gap_strain_stress_shielding}
 \end{figure}
 
-\begin{figure}[H]
-  \centering
-  \includegraphics[width=0.9\textwidth]{../output_advanced/Standard/stress_summary.png}
-  \caption{Stress distribution summary for Standard Fixator}
-  \label{fig:standard_stress_summary}
-\end{figure}
-
-\subsubsection{Rigid Fixator (\texorpdfstring{$E_{fixator} = 140$}{E\_fixator = 140} GPa)}
-
-\begin{figure}[H]
+\begin{figure}[htbp]
   \centering
   \begin{minipage}{0.45\textwidth}
     \centering
     \includegraphics[width=\textwidth]{../output_advanced/Rigid/gap_strain.png}
-    \caption{Fracture gap strain evolution for Rigid Fixator}
-    \label{fig:rigid_gap_strain}
   \end{minipage}
   \hfill
   \begin{minipage}{0.45\textwidth}
     \centering
     \includegraphics[width=\textwidth]{../output_advanced/Rigid/stress_shielding.png}
-    \caption{Stress evolution for Rigid Fixator}
-    \label{fig:rigid_stress_shielding}
   \end{minipage}
+  \caption{Fracture gap strain evolution (Left) and Stress evolution (Right) for Rigid Fixator}
+  \label{fig:rigid_gap_strain_stress_shielding}
 \end{figure}
 
 \begin{figure}[H]
   \centering
-  \includegraphics[width=0.9\textwidth]{../output_advanced/Rigid/stress_summary.png}
-  \caption{Stress distribution summary for Rigid Fixator}
-  \label{fig:rigid_stress_summary}
+  \begin{minipage}{\textwidth}
+    \centering
+    \includegraphics[width=\textwidth]{../output_advanced/Flexible/stress_summary.png}
+  \end{minipage}
+
+  \begin{minipage}{\textwidth}
+    \centering
+    \includegraphics[width=\textwidth]{../output_advanced/Standard/stress_summary.png}
+  \end{minipage}
+
+  \begin{minipage}{\textwidth}
+    \centering
+    \includegraphics[width=\textwidth]{../output_advanced/Rigid/stress_summary.png}
+  \end{minipage}
+
+  \caption{Stress distribution summary comparison for different fixator stiffnesses (Top: Flexible Fixator, Middle: Standard Fixator, Bottom: Rigid Fixator).}
+  \label{fig:stress_summary_comparison}
 \end{figure}
 
 \section{Conclusion}
@@ -366,7 +355,7 @@ The Python-based simulation framework developed for this project provides a vers
 
 Future research could build upon this foundation by extending the model to three dimensions (3D), incorporating more sophisticated material models for bone and callus (e.g., anisotropic, poroelastic, or viscoelastic properties), and integrating mechanobiological algorithms to directly simulate tissue differentiation and healing progression based on local mechanical stimuli. Nonetheless, the current 2D model serves as a valuable educational and investigative tool for understanding the fundamental interplay between fixator mechanics, stress transfer, and the evolving mechanical environment of a healing fracture.
 
-\begin{figure}[htbp]
+\begin{figure}[H]
   \centering
   \includegraphics[width=0.95\textwidth]{../output_advanced/parametric_comparison.png}
   \caption{Parametric comparison across different fixator stiffnesses: (Left) Final average Von Mises stress distribution in the fixator, bone, and fully matured callus (Step 20). (Right) Evolution of average fracture gap strain over the 20 simulation steps for each fixator type.}
