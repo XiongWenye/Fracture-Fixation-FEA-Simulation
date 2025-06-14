@@ -95,6 +95,8 @@ A key aspect of fracture healing is the concept of "stress shielding," where a r
 
 Recent research has focused on developing computational models that can simulate the mechanobiological processes of fracture healing. These models often incorporate time-dependent material properties for the healing callus and consider the influence of mechanical stimuli, such as strain or stress, on tissue differentiation \citep{morgan2024novel}. Parametric studies using FEA can investigate how factors like fixator stiffness, fracture gap size, and loading conditions affect the stress transfer mechanism from the fixator to the bone as healing progresses. This project aligns with this direction by specifically investigating how different fixator stiffnesses influence stress distribution and fracture gap strain over a simulated healing period.
 
+\section{Integration of the content of the course}
+
 We use Finite Element Analysis (FEA) to model stress redistribution during fracture healing, incorporating time-dependent material properties and parametric studies of fixator stiffness.
 
 \subsection{Problem Definition}
@@ -102,13 +104,13 @@ We use Finite Element Analysis (FEA) to model stress redistribution during fract
 \begin{itemize}
   \item \textbf{Type}: Non-homogeneous elastic body under quasi-static load with time-varying material properties (elastic modulus of callus)
   \item \textbf{Model}: 2D plane stress "bone+fixator" system with a healing fracture gap (callus) using quadrilateral elements
-  \item \textbf{Features}: 
-  \begin{itemize}
-    \item Simulation of stress transfer from fixator to bone tissue as callus stiffness increases
-    \item Parametric study of different fixator stiffness conditions
-    \item Quantitative evaluation of stress shielding effects
-    \item Monitoring of fracture gap strain evolution
-  \end{itemize}
+  \item \textbf{Features}:
+        \begin{itemize}
+          \item Simulation of stress transfer from fixator to bone tissue as callus stiffness increases
+          \item Parametric study of different fixator stiffness conditions
+          \item Quantitative evaluation of stress shielding effects
+          \item Monitoring of fracture gap strain evolution
+        \end{itemize}
 \end{itemize}
 
 \subsection{Mathematical Model}
@@ -118,28 +120,28 @@ We use Finite Element Analysis (FEA) to model stress redistribution during fract
 The linear elasticity problem with time-dependent parameters is formulated as:
 
 \[
-\bm{\sigma}^{(t)} = \mathbf{D}^{(t)}\bm{\varepsilon}
+  \bm{\sigma}^{(t)} = \mathbf{D}^{(t)}\bm{\varepsilon}
 \]
 where:
 \begin{itemize}
   \item $\bm{\sigma}^{(t)}$ is the Cauchy stress tensor at time $t$
   \item $\bm{\varepsilon}$ is the small strain tensor ($\varepsilon_{ij} = \frac{1}{2}(u_{i,j} + u_{j,i})$)
   \item $\mathbf{D}^{(t)}$ is the constitutive matrix for plane stress:
-  \[
-  \mathbf{D} = \frac{E}{1-\nu^2}\begin{bmatrix}
-  1 & \nu & 0 \\
-  \nu & 1 & 0 \\
-  0 & 0 & \frac{1-\nu}{2}
-  \end{bmatrix}
-  \]
+        \[
+          \mathbf{D} = \frac{E}{1-\nu^2}\begin{bmatrix}
+            1   & \nu & 0               \\
+            \nu & 1   & 0               \\
+            0   & 0   & \frac{1-\nu}{2}
+          \end{bmatrix}
+        \]
 \end{itemize}
 
 \subsubsection{Material Evolution}
 The material properties evolve as follows:
 \begin{align*}
-  \text{Bone tissue} & : E_{bone} = 18 \text{ GPa}, \nu = 0.3 \text{ (constant)} \\
+  \text{Bone tissue} & : E_{bone} = 18 \text{ GPa}, \nu = 0.3 \text{ (constant)}        \\
   \text{Fixator}     & : E_{fixator} \in \{35, 70, 140\} \text{ GPa (parametric study)} \\
-  \text{Callus}      & : E_{callus}^{(t)} = E_0 + \frac{t}{t_{max}}(E_{final}-E_0) \\
+  \text{Callus}      & : E_{callus}^{(t)} = E_0 + \frac{t}{t_{max}}(E_{final}-E_0)      \\
                      & \text{where } E_0 = 0.1 \text{ GPa}, E_{final} = 18 \text{ GPa}
 \end{align*}
 
@@ -149,10 +151,10 @@ The fracture gap is modeled as a region with:
   \item Initial width $w_{frac} = 10$ mm centered in the bone
   \item Time-dependent material properties representing biological healing
   \item Strain calculation using displacement differences across the gap:
-  \[
-  \varepsilon_{gap} = \frac{\Delta u}{L_{gap}}
-  \]
-  where $L_{gap}$ is the current gap width
+        \[
+          \varepsilon_{gap} = \frac{\Delta u}{L_{gap}}
+        \]
+        where $L_{gap}$ is the current gap width
 \end{itemize}
 
 \subsection{Finite Element Implementation}
@@ -162,22 +164,22 @@ The fracture gap is modeled as a region with:
 The implementation uses bilinear quadrilateral elements (Q4) with:
 \begin{itemize}
   \item Shape functions in natural coordinates ($\xi,\eta$):
-  \[
-  N_i(\xi,\eta) = \frac{1}{4}(1+\xi_i\xi)(1+\eta_i\eta), \quad \xi_i,\eta_i \in \{-1,1\}
-  \]
+        \[
+          N_i(\xi,\eta) = \frac{1}{4}(1+\xi_i\xi)(1+\eta_i\eta), \quad \xi_i,\eta_i \in \{-1,1\}
+        \]
   \item Strain-displacement matrix $\mathbf{B}$:
-  \[
-  \mathbf{B} = \begin{bmatrix}
-  \frac{\partial N_1}{\partial x} & 0 & \cdots & \frac{\partial N_4}{\partial x} & 0 \\
-  0 & \frac{\partial N_1}{\partial y} & \cdots & 0 & \frac{\partial N_4}{\partial y} \\
-  \frac{\partial N_1}{\partial y} & \frac{\partial N_1}{\partial x} & \cdots & \frac{\partial N_4}{\partial y} & \frac{\partial N_4}{\partial x}
-  \end{bmatrix}
-  \]
+        \[
+          \mathbf{B} = \begin{bmatrix}
+            \frac{\partial N_1}{\partial x} & 0                               & \cdots & \frac{\partial N_4}{\partial x} & 0                               \\
+            0                               & \frac{\partial N_1}{\partial y} & \cdots & 0                               & \frac{\partial N_4}{\partial y} \\
+            \frac{\partial N_1}{\partial y} & \frac{\partial N_1}{\partial x} & \cdots & \frac{\partial N_4}{\partial y} & \frac{\partial N_4}{\partial x}
+          \end{bmatrix}
+        \]
   \item Element stiffness matrix computed using 2×2 Gauss quadrature:
-  \[
-  \mathbf{k}^e = \sum_{i=1}^2\sum_{j=1}^2 w_iw_j\mathbf{B}^T(\xi_i,\eta_j)\mathbf{D}\mathbf{B}(\xi_i,\eta_j)|\mathbf{J}(\xi_i,\eta_j)|
-  \]
-  with integration points at $\xi_i,\eta_j = \pm\frac{1}{\sqrt{3}}$ and weights $w_i=w_j=1$
+        \[
+          \mathbf{k}^e = \sum_{i=1}^2\sum_{j=1}^2 w_iw_j\mathbf{B}^T(\xi_i,\eta_j)\mathbf{D}\mathbf{B}(\xi_i,\eta_j)|\mathbf{J}(\xi_i,\eta_j)|
+        \]
+        with integration points at $\xi_i,\eta_j = \pm\frac{1}{\sqrt{3}}$ and weights $w_i=w_j=1$
 \end{itemize}
 
 \subsubsection{Postprocessing}
