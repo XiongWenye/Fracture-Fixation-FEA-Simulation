@@ -18,6 +18,7 @@
 \usepackage{doi}
 \usepackage{amsmath}
 \usepackage{bm}            % bold math symbols
+\usepackage{float}         % for H float option
 
 
 \title{Project Report: Fracture Fixation FEA Simulation}
@@ -274,65 +275,84 @@ The average axial strain across the fracture gap (which, at Step 20, is mature c
 The detailed temporal evolution of these biomechanical parameters over the 20 simulated healing steps, along with illustrative stress contour plots, are available in the generated output files and visualizations produced by the Python simulation script. These comprehensive datasets provide a deeper understanding of the dynamic mechanobiological changes occurring throughout the simulated healing trajectory. For instance, plots depicting the "Stress Evolution" (as in Figures \ref{fig:flexible_stress_shielding}, \ref{fig:standard_stress_shielding}, \ref{fig:rigid_stress_shielding}) demonstrate how the proportion of load carried by the fixator versus the bone/callus system changes as the callus matures under each fixator stiffness condition. Similarly, "Fracture Gap Strain Evolution" plots (Figures \ref{fig:flexible_gap_strain}, \ref{fig:standard_gap_strain}, \ref{fig:rigid_gap_strain}) trace the strain history at the fracture site.
 
 \subsection{Visualizations}
-
 This section presents selected graphical results from the parametric study, illustrating the impact of different fixator stiffnesses on stress distribution and fracture gap strain dynamics during the simulated healing process.
 
 \subsubsection{Flexible Fixator (\texorpdfstring{$E_{fixator} = 35$}{E\_fixator = 35} GPa)}
-
-\begin{figure}[htbp]
+\begin{figure}[H]
   \centering
-  \includegraphics[width=0.7\textwidth]{../output_advanced/Flexible/gap_strain.png}
-  \caption{Evolution of average fracture gap strain over simulation steps for the Flexible Fixator ($E_{fixator} = 35$ GPa).}
-  \label{fig:flexible_gap_strain}
+  \begin{minipage}{0.45\textwidth}
+    \centering
+    \includegraphics[width=\textwidth]{../output_advanced/Flexible/gap_strain.png}
+    \caption{Fracture gap strain evolution for Flexible Fixator}
+    \label{fig:flexible_gap_strain}
+  \end{minipage}
+  \hfill
+  \begin{minipage}{0.45\textwidth}
+    \centering
+    \includegraphics[width=\textwidth]{../output_advanced/Flexible/stress_shielding.png}
+    \caption{Stress evolution for Flexible Fixator}
+    \label{fig:flexible_stress_shielding}
+  \end{minipage}
 \end{figure}
 
-\begin{figure}[htbp]
+\begin{figure}[H]
   \centering
-  \includegraphics[width=0.7\textwidth]{../output_advanced/Flexible/stress_shielding.png}
-  \caption{Evolution of average Von Mises stress in the fixator, bone, and callus regions for the Flexible Fixator ($E_{fixator} = 35$ GPa) over simulation steps, illustrating load sharing dynamics.}
-  \label{fig:flexible_stress_shielding}
+  \includegraphics[width=0.9\textwidth]{../output_advanced/Flexible/stress_summary.png}
+  \caption{Stress distribution summary for Flexible Fixator}
+  \label{fig:flexible_stress_summary}
 \end{figure}
-
-% TODO: Add analysis, might delete clearpage
-\clearpage % Ensures figures are placed before next major section
 
 \subsubsection{Standard Fixator (\texorpdfstring{$E_{fixator} = 70$}{E\_fixator = 70} GPa)}
 
-\begin{figure}[htbp]
+\begin{figure}[H]
   \centering
-  \includegraphics[width=0.7\textwidth]{../output_advanced/Standard/gap_strain.png}
-  \caption{Evolution of average fracture gap strain over simulation steps for the Standard Fixator ($E_{fixator} = 70$ GPa).}
-  \label{fig:standard_gap_strain}
+  \begin{minipage}{0.45\textwidth}
+    \centering
+    \includegraphics[width=\textwidth]{../output_advanced/Standard/gap_strain.png}
+    \caption{Fracture gap strain evolution for Standard Fixator}
+    \label{fig:standard_gap_strain}
+  \end{minipage}
+  \hfill
+  \begin{minipage}{0.45\textwidth}
+    \centering
+    \includegraphics[width=\textwidth]{../output_advanced/Standard/stress_shielding.png}
+    \caption{Stress evolution for Standard Fixator}
+    \label{fig:standard_stress_shielding}
+  \end{minipage}
 \end{figure}
 
-\begin{figure}[htbp]
+\begin{figure}[H]
   \centering
-  \includegraphics[width=0.7\textwidth]{../output_advanced/Standard/stress_shielding.png}
-  \caption{Evolution of average Von Mises stress in the fixator, bone, and callus regions for the Standard Fixator ($E_{fixator} = 70$ GPa) over simulation steps, illustrating load sharing dynamics.}
-  \label{fig:standard_stress_shielding}
+  \includegraphics[width=0.9\textwidth]{../output_advanced/Standard/stress_summary.png}
+  \caption{Stress distribution summary for Standard Fixator}
+  \label{fig:standard_stress_summary}
 \end{figure}
-
-% TODO: Add analysis, might delete clearpage
-\clearpage % Ensures figures are placed before next major section
 
 \subsubsection{Rigid Fixator (\texorpdfstring{$E_{fixator} = 140$}{E\_fixator = 140} GPa)}
 
-\begin{figure}[htbp]
+\begin{figure}[H]
   \centering
-  \includegraphics[width=0.7\textwidth]{../output_advanced/Rigid/gap_strain.png}
-  \caption{Evolution of average fracture gap strain over simulation steps for the Rigid Fixator ($E_{fixator} = 140$ GPa).}
-  \label{fig:rigid_gap_strain}
+  \begin{minipage}{0.45\textwidth}
+    \centering
+    \includegraphics[width=\textwidth]{../output_advanced/Rigid/gap_strain.png}
+    \caption{Fracture gap strain evolution for Rigid Fixator}
+    \label{fig:rigid_gap_strain}
+  \end{minipage}
+  \hfill
+  \begin{minipage}{0.45\textwidth}
+    \centering
+    \includegraphics[width=\textwidth]{../output_advanced/Rigid/stress_shielding.png}
+    \caption{Stress evolution for Rigid Fixator}
+    \label{fig:rigid_stress_shielding}
+  \end{minipage}
 \end{figure}
 
-\begin{figure}[htbp]
+\begin{figure}[H]
   \centering
-  \includegraphics[width=0.7\textwidth]{../output_advanced/Rigid/stress_shielding.png}
-  \caption{Evolution of average Von Mises stress in the fixator, bone, and callus regions for the Rigid Fixator ($E_{fixator} = 140$ GPa) over simulation steps, illustrating load sharing dynamics.}
-  \label{fig:rigid_stress_shielding}
+  \includegraphics[width=0.9\textwidth]{../output_advanced/Rigid/stress_summary.png}
+  \caption{Stress distribution summary for Rigid Fixator}
+  \label{fig:rigid_stress_summary}
 \end{figure}
-
-% TODO: Add analysis, might delete clearpage
-\clearpage
 
 \section{Conclusion}
 This project successfully developed and applied a 2D finite element model to simulate the biomechanics of fracture healing, specifically focusing on the influence of varying fixator stiffness. The parametric study yielded several key findings:
