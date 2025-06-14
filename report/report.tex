@@ -95,62 +95,108 @@ A key aspect of fracture healing is the concept of "stress shielding," where a r
 
 Recent research has focused on developing computational models that can simulate the mechanobiological processes of fracture healing. These models often incorporate time-dependent material properties for the healing callus and consider the influence of mechanical stimuli, such as strain or stress, on tissue differentiation \citep{morgan2024novel}. Parametric studies using FEA can investigate how factors like fixator stiffness, fracture gap size, and loading conditions affect the stress transfer mechanism from the fixator to the bone as healing progresses. This project aligns with this direction by specifically investigating how different fixator stiffnesses influence stress distribution and fracture gap strain over a simulated healing period.
 
-\section{Integration of the content of the course}
-
-We use FEA to model stress redistribution during fracture healing.
+We use Finite Element Analysis (FEA) to model stress redistribution during fracture healing, incorporating time-dependent material properties and parametric studies of fixator stiffness.
 
 \subsection{Problem Definition}
 
 \begin{itemize}
-  \item \textbf{Type}: Non-homogeneous elastic body under load with time-varying material properties (elastic modulus of callus)
-  \item \textbf{Model}: 2D "bone+fixator" system with a healing fracture gap (callus).
-  \item \textbf{Features}: Simulation of stress transfer from fixator to bone tissue as callus stiffness increases over time, under different fixator stiffness conditions.
+  \item \textbf{Type}: Non-homogeneous elastic body under quasi-static load with time-varying material properties (elastic modulus of callus)
+  \item \textbf{Model}: 2D plane stress "bone+fixator" system with a healing fracture gap (callus) using quadrilateral elements
+  \item \textbf{Features}: 
+  \begin{itemize}
+    \item Simulation of stress transfer from fixator to bone tissue as callus stiffness increases
+    \item Parametric study of different fixator stiffness conditions
+    \item Quantitative evaluation of stress shielding effects
+    \item Monitoring of fracture gap strain evolution
+  \end{itemize}
 \end{itemize}
 
 \subsection{Mathematical Model}
 
 \subsubsection{Mechanical Framework}
 
-Linear elasticity theory with time-dependent parameters for the callus:
-\[
-  \bm{\sigma}^{(t)} = \mathbf{D}^{(t)}\bm{\varepsilon}
-\]
-where $\mathbf{D}^{(t)}$ for the callus evolves with healing progression. Bone and fixator material properties are considered constant for each simulation scenario, but fixator properties vary between scenarios.
-\subsubsection{Material Evolution}
-\begin{align*}
-  \text{Bone tissue} & : E_{bone} = 18 \text{ GPa (constant)}                                          \\
-  \text{Fixator}     & : E_{fixator} \text{ (varied parametrically: 35 GPa, 70 GPa, 140 GPa)}          \\
-  \text{Callus}      & : E_{callus}^{(t)} \text{ (increases from 0.1 GPa to 18 GPa over healing time)}
-\end{align*}
-Poisson's ratio $\nu = 0.3$ for all materials.
+The linear elasticity problem with time-dependent parameters is formulated as:
 
-\subsubsection{Fracture Interface}
-The fracture interface is modeled as a callus region whose material properties (specifically Young's modulus) evolve over time, representing the healing process.
+\[
+\bm{\sigma}^{(t)} = \mathbf{D}^{(t)}\bm{\varepsilon}
+\]
+where:
+\begin{itemize}
+  \item $\bm{\sigma}^{(t)}$ is the Cauchy stress tensor at time $t$
+  \item $\bm{\varepsilon}$ is the small strain tensor ($\varepsilon_{ij} = \frac{1}{2}(u_{i,j} + u_{j,i})$)
+  \item $\mathbf{D}^{(t)}$ is the constitutive matrix for plane stress:
+  \[
+  \mathbf{D} = \frac{E}{1-\nu^2}\begin{bmatrix}
+  1 & \nu & 0 \\
+  \nu & 1 & 0 \\
+  0 & 0 & \frac{1-\nu}{2}
+  \end{bmatrix}
+  \]
+\end{itemize}
+
+\subsubsection{Material Evolution}
+The material properties evolve as follows:
+\begin{align*}
+  \text{Bone tissue} & : E_{bone} = 18 \text{ GPa}, \nu = 0.3 \text{ (constant)} \\
+  \text{Fixator}     & : E_{fixator} \in \{35, 70, 140\} \text{ GPa (parametric study)} \\
+  \text{Callus}      & : E_{callus}^{(t)} = E_0 + \frac{t}{t_{max}}(E_{final}-E_0) \\
+                     & \text{where } E_0 = 0.1 \text{ GPa}, E_{final} = 18 \text{ GPa}
+\end{align*}
+
+\subsubsection{Fracture Interface Modeling}
+The fracture gap is modeled as a region with:
+\begin{itemize}
+  \item Initial width $w_{frac} = 10$ mm centered in the bone
+  \item Time-dependent material properties representing biological healing
+  \item Strain calculation using displacement differences across the gap:
+  \[
+  \varepsilon_{gap} = \frac{\Delta u}{L_{gap}}
+  \]
+  where $L_{gap}$ is the current gap width
+\end{itemize}
 
 \subsection{Finite Element Implementation}
 
 \subsubsection{Element Formulation}
-Bilinear quadrilateral elements (Q4) are used for spatial discretization. The displacement field within an element is interpolated from nodal displacements.
-The strain-displacement relationship is given by:
-\[
-  \bm{\varepsilon} = \mathbf{B}\mathbf{d}^e
-\]
-where $\mathbf{B}$ is the strain-displacement matrix derived from the element shape functions.
 
-\subsubsection{Time-Stepping Algorithm for Healing Simulation}
-The simulation progresses through discrete time steps, representing stages of healing:
-\begin{enumerate}
-  \item Initialize material properties: $E_{bone}$, $E_{fixator}$ (for the specific scenario), $E_{callus}(t_0) = E_{callus}^{initial}$.
-  \item For each time step $t_k$:
-        \begin{enumerate}
-          \item Update callus Young's modulus: $E_{callus}(t_k) = E_{callus}^{initial} + \frac{k}{N_{steps}-1}(E_{callus}^{final} - E_{callus}^{initial})$.
-          \item Compute element stiffness matrices $\mathbf{K}^{e(t_k)}$ using the current material properties for each element.
-          \item Assemble the global stiffness matrix $\mathbf{K}^{(t_k)}$ and global force vector $\mathbf{F}^{(t_k)}$.
-          \item Apply boundary conditions (fixed displacement on one end, applied load on the other).
-          \item Solve the global system for nodal displacements: $\mathbf{K}^{(t_k)}\mathbf{d}^{(t_k)} = \mathbf{F}^{(t_k)}$.
-          \item Calculate element stresses $\bm{\sigma}^{(t_k)}$ and strains $\bm{\varepsilon}^{(t_k)}$.
-        \end{enumerate}
-\end{enumerate}
+The implementation uses bilinear quadrilateral elements (Q4) with:
+\begin{itemize}
+  \item Shape functions in natural coordinates ($\xi,\eta$):
+  \[
+  N_i(\xi,\eta) = \frac{1}{4}(1+\xi_i\xi)(1+\eta_i\eta), \quad \xi_i,\eta_i \in \{-1,1\}
+  \]
+  \item Strain-displacement matrix $\mathbf{B}$:
+  \[
+  \mathbf{B} = \begin{bmatrix}
+  \frac{\partial N_1}{\partial x} & 0 & \cdots & \frac{\partial N_4}{\partial x} & 0 \\
+  0 & \frac{\partial N_1}{\partial y} & \cdots & 0 & \frac{\partial N_4}{\partial y} \\
+  \frac{\partial N_1}{\partial y} & \frac{\partial N_1}{\partial x} & \cdots & \frac{\partial N_4}{\partial y} & \frac{\partial N_4}{\partial x}
+  \end{bmatrix}
+  \]
+  \item Element stiffness matrix computed using 2×2 Gauss quadrature:
+  \[
+  \mathbf{k}^e = \sum_{i=1}^2\sum_{j=1}^2 w_iw_j\mathbf{B}^T(\xi_i,\eta_j)\mathbf{D}\mathbf{B}(\xi_i,\eta_j)|\mathbf{J}(\xi_i,\eta_j)|
+  \]
+  with integration points at $\xi_i,\eta_j = \pm\frac{1}{\sqrt{3}}$ and weights $w_i=w_j=1$
+\end{itemize}
+
+\subsubsection{Postprocessing}
+
+Key analysis metrics include:
+\begin{itemize}
+  \item Stress shielding ratio: $\frac{\sigma_{fixator}}{\sigma_{bone}}$
+  \item Fracture gap strain evolution
+  \item Stress distribution in callus region
+  \item Load transfer between fixator and bone
+\end{itemize}
+
+Visualization includes:
+\begin{itemize}
+  \item Contour plots of von Mises stress
+  \item Time histories of average stresses
+  \item Comparative plots across parameter studies
+\end{itemize}
+
 
 \section{Your own contribution}
 
