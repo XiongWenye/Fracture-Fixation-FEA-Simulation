@@ -5,7 +5,6 @@ import pandas as pd
 import shutil
 
 
-# 确保输出目录存在
 def setup_directories(base_dir="output_advanced"):
     if os.path.exists(base_dir):
         shutil.rmtree(base_dir)
@@ -35,7 +34,6 @@ if __name__ == "__main__":
     print("\n--- Generating Parametric Comparison Plot ---")
     plot_parametric_comparison(all_results, base_dir)
 
-    # 保存最终结果
     summary_rows = []
     for label, res in all_results.items():
         summary_rows.append(

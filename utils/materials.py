@@ -1,4 +1,3 @@
-# 确定材料类型
 def get_material_type(x, y, bone_width, fixator_thickness, fracture_params):
     fixator_length, bone_length, fracture_width = fracture_params
     if y < fixator_thickness or y > bone_width + fixator_thickness:

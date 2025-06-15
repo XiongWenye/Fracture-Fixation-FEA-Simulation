@@ -4,7 +4,6 @@ from utils.materials import get_material_type
 from utils.fea_core import plane_stress_matrix
 
 
-# 计算von Mises应力
 def calculate_von_mises(stress):
     sxx, syy, txy = stress[:, 0], stress[:, 1], stress[:, 2]
     return np.sqrt(sxx**2 + syy**2 - sxx * syy + 3 * txy**2)
@@ -49,7 +48,7 @@ def calculate_stress(
 def calculate_average_stresses(
     nodes, elements, stresses, bone_width, fixator_thickness, fracture_params
 ):
-    """按材料类型计算平均Von Mises应力"""
+
     vm_stresses = calculate_von_mises(stresses)
 
     avg_stresses = {"bone": 0, "callus": 0, "fixator": 0}
@@ -75,26 +74,21 @@ def calculate_average_stresses(
 def calculate_fracture_gap_strain(
     nodes, U, fixator_length, bone_length, fracture_width
 ):
-    """计算骨折间隙的平均轴向应变 (已修正版本)"""
+
     fracture_start = (
         (fixator_length - bone_length) / 2 + bone_length / 2 - fracture_width / 2
     )
     fracture_end = fracture_start + fracture_width
 
-    # 获取网格中所有不重复的x坐标
     unique_x_coords = np.unique(nodes[:, 0])
 
-    # 找到离 fracture_start 最近且小于它的那一列节点的x坐标
     left_boundary_x = unique_x_coords[unique_x_coords < fracture_start].max()
 
-    # 找到离 fracture_end 最近且大于它的那一列节点的x坐标
     right_boundary_x = unique_x_coords[unique_x_coords > fracture_end].min()
 
-    # 根据找到的x坐标来选择节点
     left_gap_nodes = np.where(np.isclose(nodes[:, 0], left_boundary_x))[0]
     right_gap_nodes = np.where(np.isclose(nodes[:, 0], right_boundary_x))[0]
 
-    # 过滤掉固定器部分的节点，只计算骨骼和骨痂区域的应变
     bone_width = 0.02
     fixator_thickness = 0.005
 
@@ -112,14 +106,11 @@ def calculate_fracture_gap_strain(
     if not left_gap_nodes_bone or not right_gap_nodes_bone:
         return 0.0
 
-    # 提取这些节点的x方向位移
     ux_left = U[2 * np.array(left_gap_nodes_bone)]
     ux_right = U[2 * np.array(right_gap_nodes_bone)]
 
-    # 计算实际的间隙宽度
     actual_gap_width = right_boundary_x - left_boundary_x
 
-    # 计算平均位移差并除以实际间隙宽度得到应变
     avg_displacement_diff = np.mean(ux_right) - np.mean(ux_left)
     strain = avg_displacement_diff / actual_gap_width
 
