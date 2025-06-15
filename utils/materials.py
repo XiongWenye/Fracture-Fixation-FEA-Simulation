@@ -1,4 +1,8 @@
 def get_material_type(x, y, bone_width, fixator_thickness, fracture_params):
+    """
+    Determine the material type.
+    """
+
     fixator_length, bone_length, fracture_width = fracture_params
     if y < fixator_thickness or y > bone_width + fixator_thickness:
         return "fixator"

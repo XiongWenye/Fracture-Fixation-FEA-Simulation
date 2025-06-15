@@ -13,6 +13,10 @@ from utils.plot_utils import plot_analysis_results, plot_stress_model
 
 
 def apply_bc_and_loads(nodes, K, F, applied_load, fixator_length):
+    """
+    Applies boundary conditions and loads to the global stiffness matrix and force vector.
+    """
+
     left_nodes = np.where(np.isclose(nodes[:, 0], 0.0))[0]
     for node in left_nodes:
 
@@ -34,6 +38,9 @@ def apply_bc_and_loads(nodes, K, F, applied_load, fixator_length):
 
 
 def run_simulation(simulation_params, output_dir):
+    """
+    Runs a finite element simulation for a bone fracture model with a fixator.
+    """
 
     (E_fixator, label) = simulation_params
     E_bone, E_callus_initial, E_callus_final = 18e9, 0.1e9, 18e9

@@ -8,6 +8,9 @@ def plane_stress_matrix(E, nu):
 
 
 def element_stiffness(nodes, element, D):
+    """
+    Calculate the stiffness matrix for a 4-node quadrilateral element in plane stress.
+    """
 
     xi = np.array([-1 / np.sqrt(3), 1 / np.sqrt(3), 1 / np.sqrt(3), -1 / np.sqrt(3)])
     eta = np.array([-1 / np.sqrt(3), -1 / np.sqrt(3), 1 / np.sqrt(3), 1 / np.sqrt(3)])
@@ -54,6 +57,10 @@ def element_stiffness(nodes, element, D):
 def assemble_global_stiffness(
     nodes, elements, material_props, bone_width, fixator_thickness, fracture_params
 ):
+    """
+    Assemble the global stiffness matrix for the finite element model.
+    """
+
     num_nodes = nodes.shape[0]
     K = np.zeros((2 * num_nodes, 2 * num_nodes))
 
@@ -88,6 +95,10 @@ def assemble_global_stiffness(
 
 
 def create_mesh(fixator_length, bone_width, fixator_thickness, nx, ny):
+    """
+    Create a structured mesh for the finite element model.
+    """
+
     x = np.linspace(0, fixator_length, nx + 1)
     y = np.linspace(0, bone_width + 2 * fixator_thickness, ny + 1)
     nodes = np.zeros(((nx + 1) * (ny + 1), 2))

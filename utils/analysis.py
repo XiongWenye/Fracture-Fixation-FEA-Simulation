@@ -12,6 +12,10 @@ def calculate_von_mises(stress):
 def calculate_stress(
     nodes, elements, U, material_props, bone_width, fixator_thickness, fracture_params
 ):
+    """
+    Calculate the stress distribution in the finite element model.
+    """
+
     element_stresses = np.zeros((len(elements), 3))
     for elem_idx, elem in enumerate(elements):
         x_center = np.mean(nodes[elem, 0])
@@ -48,6 +52,9 @@ def calculate_stress(
 def calculate_average_stresses(
     nodes, elements, stresses, bone_width, fixator_thickness, fracture_params
 ):
+    """
+    Calculate the average stresses for each material type in the finite element model.
+    """
 
     vm_stresses = calculate_von_mises(stresses)
 
@@ -74,6 +81,9 @@ def calculate_average_stresses(
 def calculate_fracture_gap_strain(
     nodes, U, fixator_length, bone_length, fracture_width
 ):
+    """
+    Calculate the strain across the fracture gap in the finite element model.
+    """
 
     fracture_start = (
         (fixator_length - bone_length) / 2 + bone_length / 2 - fracture_width / 2
