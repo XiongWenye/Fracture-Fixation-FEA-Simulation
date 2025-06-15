@@ -105,7 +105,7 @@ This study leverages Finite Element Analysis to model the complex stress redistr
 
 \begin{figure}[htbp]
   \centering
-  \includegraphics[width=0.5\textwidth]{model_simulation.jpg}
+  \includegraphics[width=0.5\textwidth]{../assets/model_simulation.jpg}
   \caption{Model}
   \label{fig:model}
 \end{figure}
@@ -170,127 +170,127 @@ The FE model employs bilinear quadrilateral elements (Q4), whose width is $2m$, 
 \subsubsection{Nodal Displacement Matrix}
 
 \[
-\mathbf{d} = \begin{bmatrix}
-d_1 \\
-d_2 \\
-d_3 \\
-d_4
-\end{bmatrix} = \begin{bmatrix}
-u_1 \\
-v_1 \\
-u_2 \\
-v_2 \\
-u_3 \\
-v_3 \\
-u_4 \\
-v_4
-\end{bmatrix}
+  \mathbf{d} = \begin{bmatrix}
+    d_1 \\
+    d_2 \\
+    d_3 \\
+    d_4
+  \end{bmatrix} = \begin{bmatrix}
+    u_1 \\
+    v_1 \\
+    u_2 \\
+    v_2 \\
+    u_3 \\
+    v_3 \\
+    u_4 \\
+    v_4
+  \end{bmatrix}
 \]
 
 \subsubsection{Selection of Displacement Functions}
 
 \[
-\begin{cases}
-u(x, y) = a_1 + a_2 x + a_3 y + a_4 xy \\
-v(x, y) = b_1 + b_2 x + b_3 y + b_4 xy
-\end{cases}
+  \begin{cases}
+    u(x, y) = a_1 + a_2 x + a_3 y + a_4 xy \\
+    v(x, y) = b_1 + b_2 x + b_3 y + b_4 xy
+  \end{cases}
 \]
 
 Eliminating \( a, b \) yields
 
 \[
-\begin{cases}
-u(x, y) = \frac{1}{4bh} \left[ (m - y)(l - x)u_1 + (m + y)(l - x)u_2 + (m + y)(l + x)u_3 + (m - y)(l + x)u_4 \right] \\
-v(x, y) = \frac{1}{4bh} \left[ (m - y)(l - x)v_1 + (m + y)(l - x)v_2 + (m + y)(l + x)v_3 + (m - y)(l + x)v_4 \right]
-\end{cases}
+  \begin{cases}
+    u(x, y) = \frac{1}{4bh} \left[ (m - y)(l - x)u_1 + (m + y)(l - x)u_2 + (m + y)(l + x)u_3 + (m - y)(l + x)u_4 \right] \\
+    v(x, y) = \frac{1}{4bh} \left[ (m - y)(l - x)v_1 + (m + y)(l - x)v_2 + (m + y)(l + x)v_3 + (m - y)(l + x)v_4 \right]
+  \end{cases}
 \]
 
 \[
-\mathbf{\psi} =
-\begin{bmatrix}
-u(x, y) \\
-v(x, y)
-\end{bmatrix} = [N] \{d\}
+  \mathbf{\psi} =
+  \begin{bmatrix}
+    u(x, y) \\
+    v(x, y)
+  \end{bmatrix} = [N] \{d\}
 \]
 
 The shape functions are as follows:
 
 \[
-\mathbf{N} = \begin{bmatrix}
-N_1 & 0 & N_2 & 0 & N_3 & 0 & N_4 & 0 \\
-0 & N_1 & 0 & N_2 & 0 & N_3 & 0 & N_4
-\end{bmatrix}
+  \mathbf{N} = \begin{bmatrix}
+    N_1 & 0   & N_2 & 0   & N_3 & 0   & N_4 & 0   \\
+    0   & N_1 & 0   & N_2 & 0   & N_3 & 0   & N_4
+  \end{bmatrix}
 \]
 
 where
 
 \[
-\begin{matrix}
-N_1 = \frac{1}{4bh} (m - y)(l - x) & N_2 = \frac{1}{4bh} (m + y)(l - x) \\
-N_3 = \frac{1}{4bh} (m + y)(l + x) & N_4 = \frac{1}{4bh} (m - y)(l + x)
-\end{matrix}
+  \begin{matrix}
+    N_1 = \frac{1}{4bh} (m - y)(l - x) & N_2 = \frac{1}{4bh} (m + y)(l - x) \\
+    N_3 = \frac{1}{4bh} (m + y)(l + x) & N_4 = \frac{1}{4bh} (m - y)(l + x)
+  \end{matrix}
 \]
 
 \subsubsection{Coordinate Transformation}
 To simplify calculations, the quadrilateral in the \( x-y \) coordinate system is transformed into a square centered at the origin with a side length of 2 in the \( \xi-\eta \) coordinate system. The transformation relationship is:
 
 \[
-\begin{cases}
-x = x_0 + m \xi \\
-y = y_0 + l \eta
-\end{cases}
+  \begin{cases}
+    x = x_0 + m \xi \\
+    y = y_0 + l \eta
+  \end{cases}
 \]
 
 where \( x_0, y_0 \) are the coordinates of the element center.
 Let the coordinate transformation from \( x-y \) to \( \xi-\eta \) be defined as:
 
 \[
-\begin{cases}
-x = a_1 + a_2 \xi + a_3 \eta + a_4 \xi \eta \\
-y = b_1 + b_2 \xi + b_3 \eta + b_4 \xi \eta
-\end{cases}
+  \begin{cases}
+    x = a_1 + a_2 \xi + a_3 \eta + a_4 \xi \eta \\
+    y = b_1 + b_2 \xi + b_3 \eta + b_4 \xi \eta
+  \end{cases}
 \]
 
 Given the four node coordinates \((1, 1)\), \((1, -1)\), \((-1, -1)\), \((-1, 1)\) in the \( \xi-\eta \) coordinate system, corresponding to \((x_1, y_1)\), \((x_2, y_2)\), \((x_3, y_3)\), \((x_4, y_4)\) in the \( x-y \) coordinate system, the values of \( a_1, a_2, a_3, a_4, b_1, b_2, b_3, b_4 \) can be determined.
 Thus, the coordinate transformation from \( \xi-\eta \) to \( x-y \) is:
 
 \[
-\begin{cases}
-x = \frac{1}{4} \left[(1 - \xi)(1 - \eta)x_1 + (1 + \xi)(1 - \eta)x_2 + (1 + \xi)(1 + \eta)x_3 + (1 - \xi)(1 + \eta)x_4\right] \\
-y = \frac{1}{4} \left[(1 - \xi)(1 - \eta)y_1 + (1 + \xi)(1 - \eta)y_2 + (1 + \xi)(1 + \eta)y_3 + (1 - \xi)(1 + \eta)y_4\right]
-\end{cases}
+  \begin{cases}
+    x = \frac{1}{4} \left[(1 - \xi)(1 - \eta)x_1 + (1 + \xi)(1 - \eta)x_2 + (1 + \xi)(1 + \eta)x_3 + (1 - \xi)(1 + \eta)x_4\right] \\
+    y = \frac{1}{4} \left[(1 - \xi)(1 - \eta)y_1 + (1 + \xi)(1 - \eta)y_2 + (1 + \xi)(1 + \eta)y_3 + (1 - \xi)(1 + \eta)y_4\right]
+  \end{cases}
 \]
 
 That is,
 
 \[
-\begin{bmatrix}
-x \\
-y
-\end{bmatrix} = \mathbf{N} \mathbf{d} =
-\begin{bmatrix}
-N_1 & 0 & N_2 & 0 & N_3 & 0 & N_4 & 0 \\
-0 & N_1 & 0 & N_2 & 0 & N_3 & 0 & N_4
-\end{bmatrix}
-\begin{bmatrix}
-x_1 \\
-y_1 \\
-x_2 \\
-y_2 \\
-x_3 \\
-y_3 \\
-x_4 \\
-y_4
-\end{bmatrix}
+  \begin{bmatrix}
+    x \\
+    y
+  \end{bmatrix} = \mathbf{N} \mathbf{d} =
+  \begin{bmatrix}
+    N_1 & 0   & N_2 & 0   & N_3 & 0   & N_4 & 0   \\
+    0   & N_1 & 0   & N_2 & 0   & N_3 & 0   & N_4
+  \end{bmatrix}
+  \begin{bmatrix}
+    x_1 \\
+    y_1 \\
+    x_2 \\
+    y_2 \\
+    x_3 \\
+    y_3 \\
+    x_4 \\
+    y_4
+  \end{bmatrix}
 \]
 
 where
 
 \[
-\begin{matrix}
-N_1 = \frac{1}{4} (1 - \xi)(1 -\eta) & N_2 = \frac{1}{4} (1 + \xi)(1 - \eta) \\
-N_3 = \frac{1}{4} (1 + \xi)(1 + \eta) & N_4 = \frac{1}{4} (1 - \xi)(1 + \eta)
-\end{matrix}
+  \begin{matrix}
+    N_1 = \frac{1}{4} (1 - \xi)(1 -\eta)  & N_2 = \frac{1}{4} (1 + \xi)(1 - \eta) \\
+    N_3 = \frac{1}{4} (1 + \xi)(1 + \eta) & N_4 = \frac{1}{4} (1 - \xi)(1 + \eta)
+  \end{matrix}
 \]
 
 \subsubsection{Stress/Strain Calculation}
@@ -298,81 +298,81 @@ N_3 = \frac{1}{4} (1 + \xi)(1 + \eta) & N_4 = \frac{1}{4} (1 - \xi)(1 + \eta)
 The stress matrix is:
 
 \[
-\mathbf{\sigma} = \begin{bmatrix}
-\sigma_x \\
-\sigma_y \\
-\tau_{xy}
-\end{bmatrix} = \mathbf{D} \mathbf{\epsilon}
+  \mathbf{\sigma} = \begin{bmatrix}
+    \sigma_x \\
+    \sigma_y \\
+    \tau_{xy}
+  \end{bmatrix} = \mathbf{D} \mathbf{\epsilon}
 \]
 
 The strain matrix is:
 
 \[
-\mathbf{\epsilon} = \begin{bmatrix}
-\epsilon_x \\
-\epsilon_y \\
-\gamma_{xy}
-\end{bmatrix}
-= \begin{bmatrix}
-\frac{\partial u}{\partial \xi} \\
-\frac{\partial v}{\partial \eta} \\
-\frac{\partial u}{\partial \eta} + \frac{\partial v}{\partial \xi}
-\end{bmatrix}
-= \begin{bmatrix}
-\frac{\partial()}{\partial \xi} & 0 \\
-0 & \frac{\partial()}{\partial \eta} \\
-\frac{\partial()}{\partial \eta} & \frac{\partial()}{\partial \xi}
-\end{bmatrix}
-\begin{bmatrix}
-u \\
-v
-\end{bmatrix}
+  \mathbf{\epsilon} = \begin{bmatrix}
+    \epsilon_x \\
+    \epsilon_y \\
+    \gamma_{xy}
+  \end{bmatrix}
+  = \begin{bmatrix}
+    \frac{\partial u}{\partial \xi}  \\
+    \frac{\partial v}{\partial \eta} \\
+    \frac{\partial u}{\partial \eta} + \frac{\partial v}{\partial \xi}
+  \end{bmatrix}
+  = \begin{bmatrix}
+    \frac{\partial()}{\partial \xi}  & 0                                \\
+    0                                & \frac{\partial()}{\partial \eta} \\
+    \frac{\partial()}{\partial \eta} & \frac{\partial()}{\partial \xi}
+  \end{bmatrix}
+  \begin{bmatrix}
+    u \\
+    v
+  \end{bmatrix}
 \]
 
 Since
 
 \[
-\begin{cases}
-\frac{\partial f}{\partial \xi} = \frac{\partial f}{\partial \xi} \cdot \frac{\partial \xi}{\partial \xi} + \frac{\partial f}{\partial \eta} \cdot \frac{\partial \eta}{\partial \xi} \\
-\frac{\partial f}{\partial \eta} = \frac{\partial f}{\partial \xi} \cdot \frac{\partial \xi}{\partial \eta} + \frac{\partial f}{\partial \eta} \cdot \frac{\partial \eta}{\partial \eta}
-\end{cases}
+  \begin{cases}
+    \frac{\partial f}{\partial \xi} = \frac{\partial f}{\partial \xi} \cdot \frac{\partial \xi}{\partial \xi} + \frac{\partial f}{\partial \eta} \cdot \frac{\partial \eta}{\partial \xi} \\
+    \frac{\partial f}{\partial \eta} = \frac{\partial f}{\partial \xi} \cdot \frac{\partial \xi}{\partial \eta} + \frac{\partial f}{\partial \eta} \cdot \frac{\partial \eta}{\partial \eta}
+  \end{cases}
 \]
 
 Therefore,
 
 \[
-\begin{cases}
-\frac{\partial f}{\partial \xi} = \frac{1}{|J|}\left[\frac{\partial \eta}{\partial \eta} \frac{\partial f}{\partial \xi} - \frac{\partial \eta}{\partial \xi} \frac{\partial f}{\partial \eta}\right] \\
-\frac{\partial f}{\partial \eta} = \frac{1}{|J|}\left[\frac{\partial \xi}{\partial \xi} \frac{\partial f}{\partial \eta} - \frac{\partial \xi}{\partial \eta} \frac{\partial f}{\partial \xi}\right]
-\end{cases}
+  \begin{cases}
+    \frac{\partial f}{\partial \xi} = \frac{1}{|J|}\left[\frac{\partial \eta}{\partial \eta} \frac{\partial f}{\partial \xi} - \frac{\partial \eta}{\partial \xi} \frac{\partial f}{\partial \eta}\right] \\
+    \frac{\partial f}{\partial \eta} = \frac{1}{|J|}\left[\frac{\partial \xi}{\partial \xi} \frac{\partial f}{\partial \eta} - \frac{\partial \xi}{\partial \eta} \frac{\partial f}{\partial \xi}\right]
+  \end{cases}
 \]
 
 where \( |J| \) is the Jacobian determinant:
 
 \[
-|J| = \begin{vmatrix}
-\frac{\partial \xi}{\partial \xi} & \frac{\partial \xi}{\partial \eta} \\
-\frac{\partial \eta}{\partial \xi} & \frac{\partial \eta}{\partial \eta}
-\end{vmatrix}
+  |J| = \begin{vmatrix}
+    \frac{\partial \xi}{\partial \xi}  & \frac{\partial \xi}{\partial \eta}  \\
+    \frac{\partial \eta}{\partial \xi} & \frac{\partial \eta}{\partial \eta}
+  \end{vmatrix}
 \]
 
 Thus,
 
 \[
-\{B\} = \frac{1}{|J|}
-\begin{bmatrix}
-B_1 & B_2 & B_3 & B_4 \\
-\end{bmatrix}
+  \{B\} = \frac{1}{|J|}
+  \begin{bmatrix}
+    B_1 & B_2 & B_3 & B_4 \\
+  \end{bmatrix}
 \]
 
 where
 
 \[
-[B_i] = \begin{bmatrix}
-\frac{\partial N_i}{\partial \xi} & 0 \\
-0 & \frac{\partial N_i}{\partial \eta} \\
-\frac{\partial N_i}{\partial \eta} & \frac{\partial N_i}{\partial \xi}
-\end{bmatrix}
+  [B_i] = \begin{bmatrix}
+    \frac{\partial N_i}{\partial \xi}  & 0                                  \\
+    0                                  & \frac{\partial N_i}{\partial \eta} \\
+    \frac{\partial N_i}{\partial \eta} & \frac{\partial N_i}{\partial \xi}
+  \end{bmatrix}
 \]
 
 \subsubsection{Element Stiffness Matrix}
@@ -381,7 +381,7 @@ Element stiffness matrices, $\mathbf{k}^e$, is computed using 2$\times$2 Gauss q
 
 \begin{align*}
   \mathbf{k}^e & = \int_{-1}^{1}\int_{-1}^{1} \mathbf{B}^T(\xi,\eta)\mathbf{D}\mathbf{B}(\xi,\eta)|\mathbf{J}(\xi,\eta)| \, t_{thickness} \, d\xi d\eta             \\
-                & \approx \sum_{i=1}^{2}\sum_{j=1}^{2} w_iw_j\mathbf{B}^T(\xi_i,\eta_j)\mathbf{D}\mathbf{B}(\xi_i,\eta_j)|\mathbf{J}(\xi_i,\eta_j)| \, t_{thickness}
+               & \approx \sum_{i=1}^{2}\sum_{j=1}^{2} w_iw_j\mathbf{B}^T(\xi_i,\eta_j)\mathbf{D}\mathbf{B}(\xi_i,\eta_j)|\mathbf{J}(\xi_i,\eta_j)| \, t_{thickness}
 \end{align*}
 where integration points are at $\xi_i,\eta_j = \pm\frac{1}{\sqrt{3}}$ with weights $w_i=w_j=1$, and $t_{thickness}$ is the out-of-plane thickness for plane stress.
 
@@ -483,12 +483,12 @@ This section presents a detailed analysis of the graphical results obtained from
 
 \textbf{Fracture Gap Strain Dynamics}
 
-The evolution of strain across the fracture gap serves as a primary indicator of the mechanical stability provided by each fixation construct. The results are presented in the left panels of Figures 1, 2, and 3.
+The evolution of strain across the fracture gap serves as a primary indicator of the mechanical stability provided by each fixation construct. The results are presented in the left panels of Figures \ref{fig:flexible_gap_strain_stress_shielding}, \ref{fig:standard_gap_strain_stress_shielding}, and \ref{fig:rigid_gap_strain_stress_shielding}
 
 \begin{itemize}
-    \item \textbf{Initial Fracture Gap Strain:} At the commencement of the simulation (Step 0), a clear inverse relationship is observed between the stiffness of the fixator and the magnitude of the initial strain. The Flexible Fixator model yielded the highest initial strain (approx. $6.2 \times 10^{-6}$), whereas the Rigid Fixator model resulted in the lowest (approx. $1.7 \times 10^{-6}$). This outcome is consistent with mechanical principles, as a more rigid construct inherently provides greater stability, thereby restricting interfragmentary motion and reducing strain under a given load.
+  \item \textbf{Initial Fracture Gap Strain:} At the commencement of the simulation (Step 0), a clear inverse relationship is observed between the stiffness of the fixator and the magnitude of the initial strain. The Flexible Fixator model yielded the highest initial strain (approx. $6.2 \times 10^{-6}$), whereas the Rigid Fixator model resulted in the lowest (approx. $1.7 \times 10^{-6}$). This outcome is consistent with mechanical principles, as a more rigid construct inherently provides greater stability, thereby restricting interfragmentary motion and reducing strain under a given load.
 
-    \item \textbf{Temporal Evolution of Strain:} A consistent trend of decreasing strain over the simulation period is evident across all three models. This reduction is a direct consequence of the simulated healing, which is modeled by a progressive increase in the elastic modulus of the fracture callus. As the callus matures and its stiffness increases, the overall structural integrity of the bone-implant construct is enhanced. A stiffer construct deforms less under a constant applied load, leading to the observed decrease in fracture gap strain.
+  \item \textbf{Temporal Evolution of Strain:} A consistent trend of decreasing strain over the simulation period is evident across all three models. This reduction is a direct consequence of the simulated healing, which is modeled by a progressive increase in the elastic modulus of the fracture callus. As the callus matures and its stiffness increases, the overall structural integrity of the bone-implant construct is enhanced. A stiffer construct deforms less under a constant applied load, leading to the observed decrease in fracture gap strain.
 \end{itemize}
 
 \begin{figure}[htbp]
@@ -539,14 +539,14 @@ The evolution of strain across the fracture gap serves as a primary indicator of
 
 \textbf{Stress Distribution and Dynamic Load Sharing}
 
-The analysis of stress evolution within each component—Fixator, Bone, and Callus—elucidates the mechanism of dynamic load sharing. These results are depicted in the right panels of Figures 1-3 and the contour plots of Figure 4.
+The analysis of stress evolution within each component—Fixator, Bone, and Callus—elucidates the mechanism of dynamic load sharing. These results are depicted in the right panels of Figures \ref{fig:flexible_gap_strain_stress_shielding}, \ref{fig:standard_gap_strain_stress_shielding}, and \ref{fig:rigid_gap_strain_stress_shielding} and the contour plots of Figure \ref{fig:stress_summary_comparison}.
 
 \begin{itemize}
-    \item \textbf{Initial Load Bearing State (Step 0):} In the initial state, the callus is modeled as mechanically incompetent due to its very low elastic modulus. Consequently, the external fixator bears the vast majority of the applied load. This is substantiated by the high initial stress levels in the fixator and near-zero stress in the callus, as shown in the line graphs. The contour plots in Figure 4 corroborate this, visualizing the callus region in deep blue (low stress) and the fixator in red (high stress).
+  \item \textbf{Initial Load Bearing State (Step 0):} In the initial state, the callus is modeled as mechanically incompetent due to its very low elastic modulus. Consequently, the external fixator bears the vast majority of the applied load. This is substantiated by the high initial stress levels in the fixator and near-zero stress in the callus, as shown in the line graphs. The contour plots in Figure 4 corroborate this, visualizing the callus region in deep blue (low stress) and the fixator in red (high stress).
 
-    \item \textbf{Temporal Load Transfer:} A significant shift in load-bearing responsibility is observed as the simulation progresses. The average stress within the callus increases monotonically from nearly zero, while the stress in the fixator concurrently experiences a slight decrease. This demonstrates a direct transfer of mechanical load from the implant to the maturing callus.
+  \item \textbf{Temporal Load Transfer:} A significant shift in load-bearing responsibility is observed as the simulation progresses. The average stress within the callus increases monotonically from nearly zero, while the stress in the fixator concurrently experiences a slight decrease. This demonstrates a direct transfer of mechanical load from the implant to the maturing callus.
 
-    \item \textbf{The Effect of Fixator Stiffness and Stress Shielding:} The degree of load transfer is fundamentally governed by the fixator's stiffness, a phenomenon known as \textbf{stress shielding}. The Rigid Fixator maintains the highest stress levels throughout the simulation, effectively "shielding" the fracture site from mechanical stimuli by carrying a disproportionately large share of the load. This results in the lowest stress development within the callus. Conversely, the Flexible Fixator facilitates the greatest degree of load sharing, leading to the highest final stress in the callus, as the healing tissue is compelled to participate more actively in load bearing.
+  \item \textbf{The Effect of Fixator Stiffness and Stress Shielding:} The degree of load transfer is fundamentally governed by the fixator's stiffness, a phenomenon known as \textbf{stress shielding}. The Rigid Fixator maintains the highest stress levels throughout the simulation, effectively "shielding" the fracture site from mechanical stimuli by carrying a disproportionately large share of the load. This results in the lowest stress development within the callus. Conversely, the Flexible Fixator facilitates the greatest degree of load sharing, leading to the highest final stress in the callus, as the healing tissue is compelled to participate more actively in load bearing.
 \end{itemize}
 
 \begin{figure}[htbp]
@@ -556,10 +556,14 @@ The analysis of stress evolution within each component—Fixator, Bone, and Call
     \includegraphics[width=\textwidth]{../output_advanced/Flexible/stress_summary.png}
   \end{minipage}
 
+  \vspace{0.5cm}
+
   \begin{minipage}{\textwidth}
     \centering
     \includegraphics[width=\textwidth]{../output_advanced/Standard/stress_summary.png}
   \end{minipage}
+
+  \vspace{0.5cm}
 
   \begin{minipage}{\textwidth}
     \centering
